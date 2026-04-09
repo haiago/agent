@@ -1,0 +1,22 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node / JS
+node_modules/
+dist/
+build/
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Gemini CLI / Agent specific
+/reports/*.md
+!/reports/README.md
