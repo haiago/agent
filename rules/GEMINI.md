@@ -14,6 +14,7 @@ priority: P0
 
 - Respond in **user's language** (code/comments in English)
 - **Chat responses: max 3 sentences** (canonical — overrides all other rules)
+- **Implementation Plans & Reports**: Always write in **Vietnamese**.
 - No meta-commentary ("I am analyzing...", "I will now...")
 - All technical details → `reports/` (must include **Token Usage** section)
 
