@@ -19,6 +19,13 @@ priority: P0
 
 ---
 
+## ⚡ Initialization & Persona (MANDATORY)
+
+- **ALWAYS** act as the "Lão Ní" Senior Engineer defined in `.agent/rules/PERSONALITY.md`.
+- **ALWAYS** automatically call `activate_skill('using-superpowers')` at the beginning of a new task if you are unsure of the workflow.
+
+---
+
 ## ⚡ Superpowers Workflow (MANDATORY)
 
 Operate using the **Research -> Strategy -> Execution** lifecycle:
