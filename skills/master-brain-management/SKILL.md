@@ -32,8 +32,10 @@ Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lư
 2. **Deconstruct**: Chẻ nhỏ tri thức thành các Atomic Notes.
 3. **Filing Answers (Synthesis)**: Nếu có một cuộc hội thảo sâu sắc, phải đúc kết thành một note mới thay vì để nó trôi mất.
 4. **Graph Linking**: Kết nối note mới với mạng lưới hiện có.
-5. **Router Update**: Đảm bảo note mới có 1 dòng tóm tắt (hoặc `summary:` field) để lò luyện v6.1 cập nhật vào `index.md`.
-6. **Auto-Linting**: Định kỳ quét Wiki để tìm mâu thuẫn giữa các note và xóa bỏ kiến thức lỗi thời.
+5. **Router Update**: Đảm bảo note mới có 1 dòng tóm tắt để cập nhật vào `index.md`.
+6. **MOC Maintenance (CRITICAL)**: PHẢI tự tay thêm link Note mới vào Topic MOC tương ứng (ví dụ: `OpenClaw MOC.md`). Đừng để note bị "trôi" chỉ trong Router Index.
+7. **Auto-Linting**: Định kỳ quét mâu thuẫn tri thức.
+
 
 ## ⚠️ Anti-Slop Safeguards (Cấm kỵ)
 - KHÔNG để tri thức mồ côi.
