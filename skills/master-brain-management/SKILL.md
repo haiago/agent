@@ -21,6 +21,12 @@ Mục tiêu tối thượng: **Triệt tiêu Slop (rác tóm tắt)**. Biến tr
 - `/Projects`: "Where & Context" (Mối liên hệ Concepts/Tools trong dự án thực tế).
 - `/MOCs`: "The Map" (Điểm truy cập trung tâm).
 
+## 🛠️ Hạ tầng Luyện não (Infrastructure)
+Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lưới:
+- **Lò luyện v6.1**: `.agent/skills/master-brain-management/scripts/ingest-memory.sh`
+- **Cổng vào**: `LLM_Wiki/index.md` (Router Index)
+- **Nhật ký**: `LLM_Wiki/Knowledge Pulse.md`
+
 ## 🔄 Quy trình Ingest v6.1 (The Karpathy Loop)
 1. **Search & Scan**: Quét `/raw` để tìm quặng mới.
 2. **Deconstruct**: Chẻ nhỏ tri thức thành các Atomic Notes.
