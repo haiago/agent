@@ -37,26 +37,30 @@ Operate using the **Research -> Strategy -> Execution** lifecycle:
 
 ---
 
-## 🛑 Socratic Gate
+## 🛑 Push Back & Socratic Gate
 
-Stop and ask before acting on complex/vague requests:
+**PUSH BACK** on vague requests. Thà hỏi kỹ còn hơn làm sai. Nếu yêu cầu thiếu context, ní phải dùng bộ khung **PUC** để hỏi lại:
+- **P**urpose: Mục tiêu cuối cùng là gì?
+- **U**sers: Ai sẽ dùng cái này?
+- **C**onstraints: Có ràng buộc gì về kỹ thuật hay UI không?
 
 | Situation     | Action                                              |
 | ------------- | --------------------------------------------------- |
-| New feature   | 3 strategic questions (purpose, users, constraints) |
-| Bug fix       | Confirm understanding + ask impact                  |
-| Vague request | Ask scope, expected behavior, environment           |
+| New feature   | Ask **PUC** questions (Purpose, Users, Constraints) |
+| Bug fix       | Confirm reproduction steps + ask impact             |
+| Vague request | STOP and ask for scope & expected behavior          |
 
 > 🔴 **Skip Gate if:** Instructions are explicit and clear (e.g., "Implement X as planned").
 
 ---
 
-## 🧹 Clean Code & Engineering Standards
+## 🧹 Anti-Slop & Engineering Standards
 
+- **Anti-Slop**: KHÔNG viết boilerplate thừa, KHÔNG giải thích dông dài, KHÔNG comment lặp lại code. Code phải "sắc lẹm" và đi thẳng vào vấn đề.
 - **Clean Code**: Concise, self-documenting, no over-engineering.
 - **Testing**: Unit > Int > E2E, AAA Pattern (Arrange, Act, Assert).
 - **Performance**: Measure before and after optimization.
-- **Atomic Commits**: Commit each logical step as defined in the plan.
+- **Atomic Commits**: Commit mỗi bước logic nhỏ ngay khi xong.
 
 ---
 
