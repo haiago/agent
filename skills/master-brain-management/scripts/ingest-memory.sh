@@ -42,9 +42,10 @@ find "$RAW_DIR" -type f \( -name "*.md" -o -name "*.txt" -o -name "*.pdf" \) \
         NEW_FILES=$((NEW_FILES + 1))
     else
         # Nếu đã có summary, cập nhật Index nếu chưa có
-        if ! grep -q "$summary_filename" "$INDEX_FILE"; then
-            echo -e "${GREEN}✨ Đang thêm vào Mục lục:${NC} $summary_filename"
-            echo "  - [[$summary_filename]]" >> "$INDEX_FILE"
+        summary_link="${summary_filename%.md}"
+        if ! grep -q "$summary_link" "$INDEX_FILE"; then
+            echo -e "${GREEN}✨ Đang thêm vào Mục lục:${NC} $summary_link"
+            echo "- [[$summary_link]]" >> "$INDEX_FILE"
         fi
     fi
 done
