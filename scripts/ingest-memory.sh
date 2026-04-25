@@ -23,21 +23,19 @@ find "$RAW_DIR" -type f \( -name "*.md" -o -name "*.txt" \) | while read -r file
     # Check if a summary exists in LLM_Wiki
     summary_filename="Summary - $project_name - $basename.md"
     if [ ! -f "$WIKI_DIR/$summary_filename" ]; then
-        echo "📂 Phát hiện kiến thức mới từ [$project_name]: $rel_path"
+        echo "🚨 THIẾU TÓM TẮT: [$project_name] $rel_path"
+        echo "   -> Cần tạo: $WIKI_DIR/$summary_filename"
         NEW_FILES=$((NEW_FILES + 1))
-        
-        # 1. Giả lập việc tạo file summary (Agent sẽ thực hiện thực tế)
-        SUMMARY_FILE="$WIKI_DIR/$summary_filename"
-        echo "# Summary - $project_name - $basename" > "$SUMMARY_FILE"
-        echo "Project: #$project_name" >> "$SUMMARY_FILE"
-        echo "Source: [[$rel_path]]" >> "$SUMMARY_FILE"
-        
-        # 2. Tự động ghi Log
-        echo "- [$(date +'%Y-%m-%d %H:%M')] Ingested [$project_name]: $rel_path" >> "$LOG_FILE"
-        
-        # 3. Tự động cập nhật Index
-        echo "  - [[$summary_filename]]" >> "$WIKI_DIR/index.md"
+    else
+        # Nếu đã có summary, đảm bảo nó có trong index và log (nếu chưa có)
+        if ! grep -q "$summary_filename" "$WIKI_DIR/index.md"; then
+            echo "  - [[$summary_filename]]" >> "$WIKI_DIR/index.md"
+        fi
     fi
 done
 
-echo "✅ Quy trình kiểm tra hoàn tất."
+if [ $NEW_FILES -eq 0 ]; then
+    echo "✅ Mọi kiến thức đã được luyện hóa mướt rượt!"
+else
+    echo "⚠️ Còn $NEW_FILES file chưa được tóm tắt. Đại ca bảo Agent múa đi!"
+fi
