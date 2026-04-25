@@ -7,7 +7,7 @@
 
 RAW_DIR="/Users/ha/Project/MyBrain/raw"
 WIKI_DIR="/Users/ha/Project/MyBrain/LLM_Wiki"
-LOG_FILE="$WIKI_DIR/log.md"
+LOG_FILE="$WIKI_DIR/Knowledge Pulse.md"
 INDEX_FILE="$WIKI_DIR/index.md"
 
 # Màu sắc
