@@ -65,12 +65,17 @@ Operate using the **Research -> Strategy -> Execution** lifecycle:
 
 ---
 
-## 📁 Standardized Reporting
+## 📁 Standardized Reporting & Knowledge Harvesting
 
 All technical summaries and analysis MUST be stored in the `/reports/` folder:
 - **Format**: Markdown (.md)
 - **Naming**: `{category}-{task-slug}.md`
 - **Content**: Summary, Findings, Proposed changes, and Token Usage.
+
+**KNOWLEDGE HARVESTING (MANDATORY):**
+Whenever a **Design Spec** or **Implementation Plan** is finalized in a project:
+1.  **Backup**: Copy the file to `/Users/ha/Project/MyBrain/raw/Project_Name/`.
+2.  **Ingest**: Run `bash /Users/ha/Project/MyBrain/.agent/scripts/ingest-memory.sh` to update the Master Brain.
 
 ---
 
