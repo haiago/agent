@@ -24,7 +24,7 @@ Mục tiêu tối thượng: **Triệt tiêu Slop (rác tóm tắt)**. Biến tr
 ## 🛠️ Hạ tầng Luyện não (Infrastructure)
 Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lưới:
 - **Lò luyện v6.2 (Sentinel)**: `.agent/skills/master-brain-management/scripts/ingest-memory.sh`
-- **Mẫu ghi chú**: `[[Note Templates]]` (PHẢI tuân thủ khi Synthesis).
+- **Mẫu ghi chú**: `LLM_Wiki/Tools/Note Templates.md` (BẮT BUỘC phải đọc trước khi tạo note).
 - **Cổng vào**: `LLM_Wiki/index.md` (Router Index).
 
 ## 🔄 Quy trình Ingest v6.2 (The Sentinel Loop)
