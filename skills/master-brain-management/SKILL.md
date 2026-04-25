@@ -29,7 +29,7 @@ Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lư
 
 ## 🔄 Quy trình Ingest v6.2 (The Sentinel Loop)
 1. **Search & Scan**: Quét `/raw` tìm quặng.
-2. **Deconstruct & Synthesis**: Sử dụng `[[Note Templates]]` để đúc gạch tinh hoa.
+2. **Deconstruct & Synthesis**: Sử dụng mẫu tại `LLM_Wiki/Tools/Note Templates.md` để đúc gạch tinh hoa.
 3. **Graph Linking**: Kết nối note mới với mạng lưới.
 4. **Sentinel Audit**: Chạy `ingest-memory.sh` để kiểm tra MOC và Link gãy.
 5. **MOC Registration**: Nếu Sentinel báo "MOC MISSING", phải lập tức đăng ký note vào đúng Topic MOC.
