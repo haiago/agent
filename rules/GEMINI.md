@@ -75,7 +75,7 @@ All technical summaries and analysis MUST be stored in the `/reports/` folder:
 **KNOWLEDGE HARVESTING (MANDATORY):**
 Whenever a **Design Spec** or **Implementation Plan** is finalized in a project:
 1.  **Backup**: Copy the file to `/Users/ha/Project/MyBrain/raw/Project_Name/`.
-2.  **Ingest**: Run `bash /Users/ha/Project/MyBrain/.agent/scripts/ingest-memory.sh` to update the Master Brain.
+2.  **Ingest**: Run `bash /Users/ha/Project/MyBrain/.agent/skills/master-brain-management/scripts/ingest-memory.sh` to update the Master Brain.
 
 ---
 
