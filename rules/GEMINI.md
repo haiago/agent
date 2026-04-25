@@ -30,6 +30,7 @@ priority: P0
 
 Operate using the **Research -> Strategy -> Execution** lifecycle:
 
+0.  **Memory Check**: ALWAYS check `/Users/ha/Project/MyBrain/LLM_Wiki` for relevant Knowledge Items (KIs) or project-specific context BEFORE research.
 1.  **Research**: Use `grep_search` and `glob` to understand the codebase.
 2.  **Strategy**: For complex tasks, use `activate_skill` with `brainstorming` to design and `writing-plans` to create a plan.
 3.  **Execution**: Use `subagent-driven-development` or `executing-plans` for implementation.
