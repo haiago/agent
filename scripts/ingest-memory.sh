@@ -17,22 +17,26 @@ find "$RAW_DIR" -type f \( -name "*.md" -o -name "*.txt" \) | while read -r file
     rel_path=${file#$RAW_DIR/}
     basename="${filename%.*}"
     
+    # Get project name from parent directory
+    project_name=$(basename $(dirname "$file"))
+    
     # Check if a summary exists in LLM_Wiki
-    if [ ! -f "$WIKI_DIR/Summary - $basename.md" ]; then
-        echo "📂 Phát hiện kiến thức mới: $rel_path"
+    summary_filename="Summary - $project_name - $basename.md"
+    if [ ! -f "$WIKI_DIR/$summary_filename" ]; then
+        echo "📂 Phát hiện kiến thức mới từ [$project_name]: $rel_path"
         NEW_FILES=$((NEW_FILES + 1))
         
         # 1. Giả lập việc tạo file summary (Agent sẽ thực hiện thực tế)
-        SUMMARY_FILE="$WIKI_DIR/Summary - $basename.md"
-        echo "# Summary - $basename" > "$SUMMARY_FILE"
+        SUMMARY_FILE="$WIKI_DIR/$summary_filename"
+        echo "# Summary - $project_name - $basename" > "$SUMMARY_FILE"
+        echo "Project: #$project_name" >> "$SUMMARY_FILE"
         echo "Source: [[$rel_path]]" >> "$SUMMARY_FILE"
         
         # 2. Tự động ghi Log
-        echo "- [$(date +'%Y-%m-%d %H:%M')] Ingested: $rel_path" >> "$LOG_FILE"
+        echo "- [$(date +'%Y-%m-%d %H:%M')] Ingested [$project_name]: $rel_path" >> "$LOG_FILE"
         
-        # 3. Tự động cập nhật Index (thêm vào mục Tài liệu mới)
-        # Sử dụng sed để chèn vào sau dòng tiêu đề dự án hoặc mục lục
-        echo "  - [[Summary - $basename]]" >> "$WIKI_DIR/index.md"
+        # 3. Tự động cập nhật Index
+        echo "  - [[$summary_filename]]" >> "$WIKI_DIR/index.md"
     fi
 done
 
