@@ -1,39 +1,38 @@
 ---
 name: master-brain-management
-description: Quy trình và công cụ để quản lý bộ não trung tâm (Master Brain), luyện hóa tri thức thô thành tinh hoa.
+description: Quy trình Zettelkasten v6.0 - Ép Agent trích xuất tinh hoa nguyên tử và xây dựng mạng lưới tri thức thực chiến.
 ---
 
-# Master Brain Management Skill
+# Master Brain Management (Zettelkasten v6.0)
 
-Skill này định nghĩa cách thức Agent tương tác với hệ thống MyBrain để duy trì và phát triển kho tri thức cá nhân (LLM Wiki).
+Mục tiêu tối thượng: **Triệt tiêu Slop (rác tóm tắt)**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
 
-## 🧩 Cấu Trúc Hệ Thống
-- `/raw`: Nơi chứa tài liệu nguồn chưa qua xử lý.
-- `/LLM_Wiki`: Obsidian Vault chứa tri thức đã được luyện hóa (Summary, Concepts).
-- `.agent/skills`: Nơi lưu trữ các kỹ năng của bộ não.
+## 🧱 Quy chuẩn Atomic Note (BẮT BUỘC)
+1. **Naming**: Tên file = Khái niệm/Công cụ. KHÔNG dùng tiền tố `Summary`, `Note`, `About`. (Ví dụ: `Deterministic Hooks.md`).
+2. **Structure**: Phải có Frontmatter (tags, aliases) để Obsidian/Agent tìm kiếm nhanh.
+3. **Connectivity**: 
+   - Note mới PHẢI liên kết tới ít nhất 1 MOC.
+   - Note mới NÊN liên kết tới các Concepts liên quan đã có.
+4. **Length**: > 100 dòng = THẤT BẠI. Phải chẻ nhỏ thành các note con.
 
-## 🛠️ Công Cụ Hỗ Trợ
-- `scripts/ingest-memory.sh`: Script v5.1 tự động hóa việc kiểm tra, tóm tắt và cập nhật mục lục/nhật ký.
+## 🛠️ Phân khu Tri thức (LLM_Wiki/)
+- `/Concepts`: "How & Why" (Nguyên lý kỹ thuật).
+- `/Tools`: "What & Code" (Scripts, CLI, Snippets).
+- `/Projects`: "Where & Context" (Mối liên hệ Concepts/Tools trong dự án thực tế).
+- `/MOCs`: "The Map" (Điểm truy cập trung tâm).
 
-## 🔄 Quy Trình Ingest 5 Bước (MANDATORY)
-Mỗi khi có dữ liệu mới trong `/raw`, Agent phải tuân thủ:
+## 🔄 Quy trình Ingest v6.1 (The Karpathy Loop)
+1. **Search & Scan**: Quét `/raw` để tìm quặng mới.
+2. **Deconstruct**: Chẻ nhỏ tri thức thành các Atomic Notes.
+3. **Filing Answers (Synthesis)**: Nếu có một cuộc hội thảo sâu sắc, phải đúc kết thành một note mới thay vì để nó trôi mất.
+4. **Graph Linking**: Kết nối note mới với mạng lưới hiện có.
+5. **Router Update**: Đảm bảo note mới có 1 dòng tóm tắt (hoặc `summary:` field) để lò luyện v6.1 cập nhật vào `index.md`.
+6. **Auto-Linting**: Định kỳ quét Wiki để tìm mâu thuẫn giữa các note và xóa bỏ kiến thức lỗi thời.
 
-1. **Research**: Sử dụng `ls` và `cat` để đọc hiểu tài liệu nguồn trong `/raw`.
-2. **Brainstorm**: (Sử dụng skill `brainstorming`) Để trích xuất các keyword, khái niệm và góc nhìn giá trị.
-3. **Plan**: (Sử dụng skill `writing-plans`) Lên danh sách các file Summary và Concept cần tạo/cập nhật.
-4. **Execute**: 
-   - Viết Summary theo chuẩn: `Summary - [Project] - [Filename]`.
-   - Gắn thẻ Project: `#ProjectName`.
-   - Tạo liên kết Wiki: `[[SourceFile]]`.
-5. **Log & Index**: Chạy script `ingest-memory.sh` để đồng bộ hóa nhật ký và mục lục.
+## ⚠️ Anti-Slop Safeguards (Cấm kỵ)
+- KHÔNG để tri thức mồ côi.
+- KHÔNG để mâu thuẫn tồn tại (Note A nói X, Note B nói Y -> Phải hợp nhất hoặc sửa đổi).
+- Mọi note phải có "giá trị định tuyến" (Tóm tắt 1 dòng chất lượng).
 
-## ⚠️ Nguyên Tắc Luyện Não (Anti-Slop)
-- **Không tóm tắt hời hợt**: Phải trích xuất được giá trị kỹ thuật hoặc tư duy thực tế.
-- **Tính nhất quán**: Luôn kiểm tra `index.md` và `log.md` để tránh trùng lặp.
-- **Bảo mật**: Không đưa thông tin nhạy cảm (API Key, Secret) vào `/LLM_Wiki`.
-
-## 🚀 Kích Hoạt
-Sử dụng skill này khi:
-- Cần dọn dẹp hoặc tổ chức lại kho tri thức.
-- Có tài liệu mới cần "luyện hóa".
-- Cần tra cứu tri thức tổng quát từ nhiều dự án khác nhau.
+---
+*Mọi hành vi vi phạm quy chuẩn Atomic sẽ bị Lão Ní "thanh trừng" ngay lập tức.*
