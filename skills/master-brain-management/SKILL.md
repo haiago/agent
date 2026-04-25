@@ -23,18 +23,16 @@ Mục tiêu tối thượng: **Triệt tiêu Slop (rác tóm tắt)**. Biến tr
 
 ## 🛠️ Hạ tầng Luyện não (Infrastructure)
 Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lưới:
-- **Lò luyện v6.1**: `.agent/skills/master-brain-management/scripts/ingest-memory.sh`
-- **Cổng vào**: `LLM_Wiki/index.md` (Router Index)
-- **Nhật ký**: `LLM_Wiki/Knowledge Pulse.md`
+- **Lò luyện v6.2 (Sentinel)**: `.agent/skills/master-brain-management/scripts/ingest-memory.sh`
+- **Mẫu ghi chú**: `[[Note Templates]]` (PHẢI tuân thủ khi Synthesis).
+- **Cổng vào**: `LLM_Wiki/index.md` (Router Index).
 
-## 🔄 Quy trình Ingest v6.1 (The Karpathy Loop)
-1. **Search & Scan**: Quét `/raw` để tìm quặng mới.
-2. **Deconstruct**: Chẻ nhỏ tri thức thành các Atomic Notes.
-3. **Filing Answers (Synthesis)**: Nếu có một cuộc hội thảo sâu sắc, phải đúc kết thành một note mới thay vì để nó trôi mất.
-4. **Graph Linking**: Kết nối note mới với mạng lưới hiện có.
-5. **Router Update**: Đảm bảo note mới có 1 dòng tóm tắt để cập nhật vào `index.md`.
-6. **MOC Maintenance (CRITICAL)**: PHẢI tự tay thêm link Note mới vào Topic MOC tương ứng (ví dụ: `OpenClaw MOC.md`). Đừng để note bị "trôi" chỉ trong Router Index.
-7. **Auto-Linting**: Định kỳ quét mâu thuẫn tri thức.
+## 🔄 Quy trình Ingest v6.2 (The Sentinel Loop)
+1. **Search & Scan**: Quét `/raw` tìm quặng.
+2. **Deconstruct & Synthesis**: Sử dụng `[[Note Templates]]` để đúc gạch tinh hoa.
+3. **Graph Linking**: Kết nối note mới với mạng lưới.
+4. **Sentinel Audit**: Chạy `ingest-memory.sh` để kiểm tra MOC và Link gãy.
+5. **MOC Registration**: Nếu Sentinel báo "MOC MISSING", phải lập tức đăng ký note vào đúng Topic MOC.
 
 
 ## ⚠️ Anti-Slop Safeguards (Cấm kỵ)
