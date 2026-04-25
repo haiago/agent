@@ -30,10 +30,19 @@ echo "---" > "$TEMP_INDEX"
 echo "tags: [moc, home, router]" >> "$TEMP_INDEX"
 echo "---" >> "$TEMP_INDEX"
 echo -e "\n# 🏮 Master Brain: Router Index" >> "$TEMP_INDEX"
+
 echo -e "\n## 🗺️ Bản đồ Tri thức (MOCs)" >> "$TEMP_INDEX"
-echo "- [[LLM Wiki]]: Bản tuyên ngôn và phương pháp luận v6.1." >> "$TEMP_INDEX"
-echo "- [[OpenClaw MOC]]: Toàn bộ tâm pháp về Agent Harness." >> "$TEMP_INDEX"
-echo "- [[Master Brain MOC]]: Quản trị hệ thống tri thức." >> "$TEMP_INDEX"
+# Tự động quét mọi file trong thư mục MOCs
+find "$WIKI_DIR/MOCs" -type f -name "*.md" | sort | while read -r moc_file; do
+    moc_name=$(basename "$moc_file" .md)
+    # Trích xuất tóm tắt của MOC
+    moc_summary=$(grep -m 1 "^summary:" "$moc_file" | sed 's/summary: //')
+    if [ -z "$moc_summary" ]; then
+        moc_summary=$(grep -v "^---" "$moc_file" | grep -v "^#" | grep -v "^$" | head -n 1 | cut -c 1-100)
+    fi
+    echo "- [[$moc_name]]: ${moc_summary:-"Bản đồ tri thức tổng hợp."}" >> "$TEMP_INDEX"
+done
+
 echo -e "\n## 🚀 Danh mục Định tuyến (All Notes)" >> "$TEMP_INDEX"
 
 # --- 2. ORE DISCOVERY & GRAPH INTEGRITY ---
