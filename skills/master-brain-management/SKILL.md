@@ -1,9 +1,9 @@
 ---
 name: master-brain-management
-description: Quy trình Sentinel v6.5 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến.
+description: Quy trình Sentinel Refinery-v6.5 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến.
 ---
 
-# Master Brain Management (Sentinel v6.5)
+# Master Brain Management (Sentinel Refinery-v6.5)
 
 Mục tiêu tối thượng: **Triệt tiêu Slop (rác tóm tắt)**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
 
@@ -24,12 +24,12 @@ Mục tiêu tối thượng: **Triệt tiêu Slop (rác tóm tắt)**. Biến tr
 ## 🛠️ Hạ tầng Luyện não (Infrastructure)
 Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lưới:
 - **Nguồn chân lý**: `.agent/VERSION` (Chứa phiên bản hiện tại).
-- **Lò luyện v6.5 (Automator)**: `.agent/skills/master-brain-management/scripts/ingest-memory.sh`
+- **Lò luyện Refinery-v6.5 (Automator)**: `.agent/skills/master-brain-management/scripts/ingest-memory.sh`
 - **Dashboard Sức khỏe**: `LLM_Wiki/MOCs/Wiki Health MOC.md`.
 - **Mẫu ghi chú**: `LLM_Wiki/Tools/Note Templates.md`.
 - **Cổng vào**: `LLM_Wiki/index.md`.
 
-## 🔄 Quy trình Ingest v6.5 (The Automator Loop)
+## 🔄 Quy trình Ingest Refinery-v6.5 (The Automator Loop)
 1. **Search & Scan**: Quét `/raw` tìm quặng.
 2. **Deconstruct & Synthesis**: Sử dụng mẫu tại `LLM_Wiki/Tools/Note Templates.md`.
 3. **Graph Linking**: Kết nối mạng lưới.
