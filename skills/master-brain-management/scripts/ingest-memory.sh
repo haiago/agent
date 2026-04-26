@@ -27,7 +27,7 @@ echo -e "${BLUE}🏮 [Lão Ní] Khởi động Lò luyện $CURRENT_VERSION (Aut
 # --- 0. GLOBAL VERSION SYNC (Tự động đồng bộ phiên bản) ---
 echo -e "${CYAN}🔄 Đang đồng bộ phiên bản $CURRENT_VERSION toàn hệ thống...${NC}"
 # Quét và thay thế các chuỗi version cũ (v6.X hoặc Refinery-v6.X) bằng phiên bản hiện tại
-files_to_sync=("$WIKI_DIR/Concepts/LLM Wiki.md" "$WIKI_DIR/MOCs/Master Brain MOC.md" "/Users/ha/Project/MyBrain/GEMINI.md" "/Users/ha/Project/MyBrain/.agent/skills/master-brain-management/SKILL.md")
+files_to_sync=("$WIKI_DIR/Concepts/LLM Wiki.md" "$WIKI_DIR/MOCs/Master Brain MOC.md" "/Users/ha/Project/MyBrain/GEMINI.md" "/Users/ha/Project/MyBrain/.agent/skills/master-brain-management/SKILL.md" "$WIKI_DIR/Concepts/Master Brain Sharing Guide.md")
 
 for file in "${files_to_sync[@]}"; do
     if [ -f "$file" ]; then
