@@ -75,12 +75,21 @@ while read -r note; do
     if [[ "$note" != *"/MOCs/"* ]]; then
         is_in_moc=$(grep -rl "\[\[$basename" "$MOC_DIR" | wc -l)
         if [ "$is_in_moc" -eq 0 ]; then
-            # Gợi ý dựa trên tags
+            # Gợi ý động: So khớp từng tag của note với tên các file MOC hiện có
             suggested_moc="Chưa rõ"
-            tags=$(grep "tags:" "$note")
-            [[ "$tags" == *"mcp"* ]] && suggested_moc="[[MCP MOC]]"
-            [[ "$tags" == *"openclaw"* ]] && suggested_moc="[[OpenClaw MOC]]"
-            [[ "$tags" == *"methodology"* ]] && suggested_moc="[[Master Brain MOC]]"
+            # Lấy danh sách tags, bỏ dấu phẩy và ngoặc vuông, chuyển thành mảng
+            tags_list=$(grep "tags:" "$note" | sed 's/tags: //' | tr -d '[],' | tr '[:upper:]' '[:lower:]')
+            
+            for tag in $tags_list; do
+                # Tìm file MOC nào có tên chứa cái tag này (không phân biệt hoa thường)
+                moc_match=$(find "$MOC_DIR" -type f -iname "*$tag*MOC.md" | head -n 1)
+                if [ -n "$moc_match" ]; then
+                    suggested_moc="[$(basename "$moc_match" .md)]]"
+                    suggested_moc="[[${suggested_moc}" # Đảm bảo đúng định dạng [[...]]
+                    suggested_moc=$(echo "$suggested_moc" | sed 's/\[\[\[/\[\[/') # Sửa lỗi ngoặc dư
+                    break
+                fi
+            done
             
             echo -e "${RED}⚠️  MOC MISSING:${NC} $basename -> Suggest: $suggested_moc"
             echo "| 🏠 MOC Missing | [[$basename]] | Gợi ý: $suggested_moc |" >> "$HEALTH_FILE"
