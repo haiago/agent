@@ -36,6 +36,7 @@ Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lư
 5. **Auto-Healing**: Kiểm tra `Wiki Health MOC.md`, thực hiện các gợi ý "Smart Suggest" để vá MOC và sửa link gãy.
 
 ## ⚠️ Anti-Slop Safeguards (Cấm kỵ)
+- **Language Integrity (MANDATORY)**: Đối với tài liệu nguồn (quặng thô) bằng tiếng Anh, PHẢI giữ nguyên nội dung Atomic Note bằng tiếng Anh. Tuyệt đối không dịch sang tiếng Việt để tránh làm sai lệch ngữ nghĩa kỹ thuật và thuật ngữ chuyên môn.
 - **Đồng bộ tuyệt đối (MANDATORY)**: Mọi thay đổi về logic (Skill, Script, Cấu trúc) PHẢI đi kèm với việc cập nhật đồng bộ các file điều phối (`GEMINI.md`, `index.md`, `LLM Wiki.md`) và các MOC liên quan. Cấm tuyệt đối việc để tồn tại phiên bản cũ hoặc "link ma".
 - KHÔNG để tri thức mồ côi.
 - KHÔNG để mâu thuẫn tồn tại (Note A nói X, Note B nói Y -> Phải hợp nhất hoặc sửa đổi).
