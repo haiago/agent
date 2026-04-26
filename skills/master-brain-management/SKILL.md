@@ -35,6 +35,7 @@ Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lư
 5. **MOC Registration**: Nếu Sentinel báo "MOC MISSING", phải lập tức đăng ký note vào đúng Topic MOC.
 
 ## ⚠️ Anti-Slop Safeguards (Cấm kỵ)
+- **Đồng bộ tuyệt đối (MANDATORY)**: Mọi thay đổi về logic (Skill, Script, Cấu trúc) PHẢI đi kèm với việc cập nhật đồng bộ các file điều phối (`GEMINI.md`, `index.md`, `LLM Wiki.md`) và các MOC liên quan. Cấm tuyệt đối việc để tồn tại phiên bản cũ hoặc "link ma".
 - KHÔNG để tri thức mồ côi.
 - KHÔNG để mâu thuẫn tồn tại (Note A nói X, Note B nói Y -> Phải hợp nhất hoặc sửa đổi).
 - Mọi note phải có "giá trị định tuyến" (Tóm tắt 1 dòng chất lượng).
