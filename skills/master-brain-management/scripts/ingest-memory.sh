@@ -27,11 +27,11 @@ echo -e "${BLUE}🏮 [Lão Ní] Khởi động Lò luyện $CURRENT_VERSION (Aut
 # --- 0. GLOBAL VERSION SYNC (Tự động đồng bộ phiên bản) ---
 echo -e "${CYAN}🔄 Đang đồng bộ phiên bản $CURRENT_VERSION toàn hệ thống...${NC}"
 # Quét và thay thế các chuỗi version cũ (v6.X hoặc Refinery-v6.X) bằng phiên bản hiện tại
-files_to_sync=("$WIKI_DIR/Concepts/LLM Wiki.md" "$WIKI_DIR/MOCs/Master Brain MOC.md" "/Users/ha/Project/MyBrain/GEMINI.md" "/Users/ha/Project/MyBrain/.agent/skills/master-brain-management/SKILL.md" "$WIKI_DIR/Concepts/Master Brain Sharing Guide.md")
+files_to_sync=("$WIKI_DIR/Concepts/LLM Wiki.md" "$WIKI_DIR/MOCs/Master Brain MOC.md" "/Users/ha/Project/MyBrain/GEMINI.md" "/Users/ha/Project/MyBrain/.agent/skills/master-brain-management/SKILL.md" "$WIKI_DIR/Concepts/Master Brain Sharing Guide.md" "$WIKI_DIR/MOCs/Projects MOC.md")
 
 for file in "${files_to_sync[@]}"; do
     if [ -f "$file" ]; then
-        # Sử dụng sed để thay thế linh hoạt các pattern version cũ sang Refinery-v6.5
+        # Sử dụng sed để thay thế linh hoạt các pattern version cũ sang Refinery-v6.6
         sed -i '' "s/\(Refinery-\)\{0,1\}v6\.[0-9]/$CURRENT_VERSION/g" "$file"
     fi
 done
