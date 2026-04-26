@@ -1,9 +1,9 @@
 ---
 name: master-brain-management
-description: Quy trình Sentinel v6.2 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến.
+description: Quy trình Sentinel v6.5 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến.
 ---
 
-# Master Brain Management (Sentinel v6.2)
+# Master Brain Management (Sentinel v6.5)
 
 Mục tiêu tối thượng: **Triệt tiêu Slop (rác tóm tắt)**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
 
@@ -23,17 +23,18 @@ Mục tiêu tối thượng: **Triệt tiêu Slop (rác tóm tắt)**. Biến tr
 
 ## 🛠️ Hạ tầng Luyện não (Infrastructure)
 Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lưới:
-- **Lò luyện v6.3 (Healer)**: `.agent/skills/master-brain-management/scripts/ingest-memory.sh`
-- **Dashboard Sức khỏe**: `LLM_Wiki/MOCs/Wiki Health MOC.md` (Báo cáo lỗi tự động).
-- **Mẫu ghi chú**: `LLM_Wiki/Tools/Note Templates.md` (BẮT BUỘC tuân thủ).
-- **Cổng vào**: `LLM_Wiki/index.md` (Router Index).
+- **Nguồn chân lý**: `.agent/VERSION` (Chứa phiên bản hiện tại).
+- **Lò luyện v6.5 (Automator)**: `.agent/skills/master-brain-management/scripts/ingest-memory.sh`
+- **Dashboard Sức khỏe**: `LLM_Wiki/MOCs/Wiki Health MOC.md`.
+- **Mẫu ghi chú**: `LLM_Wiki/Tools/Note Templates.md`.
+- **Cổng vào**: `LLM_Wiki/index.md`.
 
-## 🔄 Quy trình Ingest v6.3 (The Healer Loop)
+## 🔄 Quy trình Ingest v6.5 (The Automator Loop)
 1. **Search & Scan**: Quét `/raw` tìm quặng.
 2. **Deconstruct & Synthesis**: Sử dụng mẫu tại `LLM_Wiki/Tools/Note Templates.md`.
 3. **Graph Linking**: Kết nối mạng lưới.
-4. **Healer Diagnosis**: Chạy `ingest-memory.sh` để cập nhật Dashboard Sức khỏe.
-5. **Auto-Healing**: Kiểm tra `Wiki Health MOC.md`, thực hiện các gợi ý "Smart Suggest" để vá MOC và sửa link gãy.
+4. **Auto-Versioning**: Chạy `ingest-memory.sh` để đồng bộ phiên bản toàn hệ thống.
+5. **Healer Diagnosis**: Kiểm tra Dashboard Sức khỏe và thực hiện Auto-Healing.
 
 ## ⚠️ Anti-Slop Safeguards (Cấm kỵ)
 - **Language Integrity (MANDATORY)**: Đối với tài liệu nguồn (quặng thô) bằng tiếng Anh, PHẢI giữ nguyên nội dung Atomic Note bằng tiếng Anh. Tuyệt đối không dịch sang tiếng Việt để tránh làm sai lệch ngữ nghĩa kỹ thuật và thuật ngữ chuyên môn.

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # =================================================================
-# 🏮 Lò luyện Tri thức v6.3 - "Healer Edition"
-# Điều phối, Bảo trì và Tự chẩn đoán (Smart Suggest & Code Immunity)
+# 🏮 Lò luyện Tri thức v6.5 - "Automator Edition"
+# Điều phối, Bảo trì và Tự động đồng bộ Phiên bản (Global Version Sync)
 # =================================================================
 
 RAW_DIR="/Users/ha/Project/MyBrain/raw"
@@ -10,6 +10,8 @@ WIKI_DIR="/Users/ha/Project/MyBrain/LLM_Wiki"
 MOC_DIR="$WIKI_DIR/MOCs"
 INDEX_FILE="$WIKI_DIR/index.md"
 HEALTH_FILE="$WIKI_DIR/MOCs/Wiki Health MOC.md"
+VERSION_FILE="/Users/ha/Project/MyBrain/.agent/VERSION"
+CURRENT_VERSION=$(cat "$VERSION_FILE")
 
 # Màu sắc
 GREEN='\033[0;32m'
@@ -20,7 +22,19 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-echo -e "${BLUE}🏮 [Lão Ní] Khởi động Lò luyện v6.3 (Healer Edition)...${NC}"
+echo -e "${BLUE}🏮 [Lão Ní] Khởi động Lò luyện $CURRENT_VERSION (Automator Edition)...${NC}"
+
+# --- 0. GLOBAL VERSION SYNC (Tự động đồng bộ phiên bản) ---
+echo -e "${CYAN}🔄 Đang đồng bộ phiên bản $CURRENT_VERSION toàn hệ thống...${NC}"
+# Quét và thay thế các chuỗi v6.X bằng phiên bản hiện tại trong các file điều phối
+files_to_sync=("$WIKI_DIR/Concepts/LLM Wiki.md" "$WIKI_DIR/MOCs/Master Brain MOC.md" "/Users/ha/Project/MyBrain/GEMINI.md" "/Users/ha/Project/MyBrain/.agent/skills/master-brain-management/SKILL.md")
+
+for file in "${files_to_sync[@]}"; do
+    if [ -f "$file" ]; then
+        # Sử dụng sed để thay thế các pattern v6.[0-9] thành phiên bản mới
+        sed -i '' "s/v6\.[0-9]/$CURRENT_VERSION/g" "$file"
+    fi
+done
 
 # Khởi tạo Dashboard Sức khỏe
 echo "---" > "$HEALTH_FILE"
