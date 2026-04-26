@@ -39,7 +39,7 @@ done
 # Khởi tạo Dashboard Sức khỏe
 echo "---" > "$HEALTH_FILE"
 echo "tags: [moc, maintenance, health]" >> "$HEALTH_FILE"
-echo "summary: \"Báo cáo chi tiết sức khỏe mạng lưới tri thức v6.3.\"" >> "$HEALTH_FILE"
+echo "summary: \"Báo cáo chi tiết sức khỏe mạng lưới tri thức $CURRENT_VERSION.\"" >> "$HEALTH_FILE"
 echo "---" >> "$HEALTH_FILE"
 echo -e "\n# 🏥 Wiki Health MOC" >> "$HEALTH_FILE"
 echo -e "\n> [!INFO] Cập nhật lần cuối: $(date +'%Y-%m-%d %H:%M:%S')" >> "$HEALTH_FILE"
