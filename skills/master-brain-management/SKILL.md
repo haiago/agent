@@ -1,9 +1,9 @@
 ---
 name: master-brain-management
-description: Quy trình Zettelkasten v6.0 - Ép Agent trích xuất tinh hoa nguyên tử và xây dựng mạng lưới tri thức thực chiến.
+description: Quy trình Sentinel v6.2 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến.
 ---
 
-# Master Brain Management (Zettelkasten v6.0)
+# Master Brain Management (Sentinel v6.2)
 
 Mục tiêu tối thượng: **Triệt tiêu Slop (rác tóm tắt)**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
 
@@ -33,7 +33,6 @@ Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lư
 3. **Graph Linking**: Kết nối note mới với mạng lưới.
 4. **Sentinel Audit**: Chạy `ingest-memory.sh` để kiểm tra MOC và Link gãy.
 5. **MOC Registration**: Nếu Sentinel báo "MOC MISSING", phải lập tức đăng ký note vào đúng Topic MOC.
-
 
 ## ⚠️ Anti-Slop Safeguards (Cấm kỵ)
 - KHÔNG để tri thức mồ côi.
