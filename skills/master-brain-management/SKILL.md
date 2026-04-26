@@ -23,16 +23,17 @@ Mục tiêu tối thượng: **Triệt tiêu Slop (rác tóm tắt)**. Biến tr
 
 ## 🛠️ Hạ tầng Luyện não (Infrastructure)
 Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lưới:
-- **Lò luyện v6.2 (Sentinel)**: `.agent/skills/master-brain-management/scripts/ingest-memory.sh`
-- **Mẫu ghi chú**: `LLM_Wiki/Tools/Note Templates.md` (BẮT BUỘC phải đọc trước khi tạo note).
+- **Lò luyện v6.3 (Healer)**: `.agent/skills/master-brain-management/scripts/ingest-memory.sh`
+- **Dashboard Sức khỏe**: `LLM_Wiki/MOCs/Wiki Health MOC.md` (Báo cáo lỗi tự động).
+- **Mẫu ghi chú**: `LLM_Wiki/Tools/Note Templates.md` (BẮT BUỘC tuân thủ).
 - **Cổng vào**: `LLM_Wiki/index.md` (Router Index).
 
-## 🔄 Quy trình Ingest v6.2 (The Sentinel Loop)
+## 🔄 Quy trình Ingest v6.3 (The Healer Loop)
 1. **Search & Scan**: Quét `/raw` tìm quặng.
-2. **Deconstruct & Synthesis**: Sử dụng mẫu tại `LLM_Wiki/Tools/Note Templates.md` để đúc gạch tinh hoa.
-3. **Graph Linking**: Kết nối note mới với mạng lưới.
-4. **Sentinel Audit**: Chạy `ingest-memory.sh` để kiểm tra MOC và Link gãy.
-5. **MOC Registration**: Nếu Sentinel báo "MOC MISSING", phải lập tức đăng ký note vào đúng Topic MOC.
+2. **Deconstruct & Synthesis**: Sử dụng mẫu tại `LLM_Wiki/Tools/Note Templates.md`.
+3. **Graph Linking**: Kết nối mạng lưới.
+4. **Healer Diagnosis**: Chạy `ingest-memory.sh` để cập nhật Dashboard Sức khỏe.
+5. **Auto-Healing**: Kiểm tra `Wiki Health MOC.md`, thực hiện các gợi ý "Smart Suggest" để vá MOC và sửa link gãy.
 
 ## ⚠️ Anti-Slop Safeguards (Cấm kỵ)
 - **Đồng bộ tuyệt đối (MANDATORY)**: Mọi thay đổi về logic (Skill, Script, Cấu trúc) PHẢI đi kèm với việc cập nhật đồng bộ các file điều phối (`GEMINI.md`, `index.md`, `LLM Wiki.md`) và các MOC liên quan. Cấm tuyệt đối việc để tồn tại phiên bản cũ hoặc "link ma".

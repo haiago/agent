@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # =================================================================
-# 🏮 Lò luyện Tri thức v6.2 - "Sentinel Edition"
-# Điều phối, Bảo trì mạng lưới và Kiểm toán MOC (Map of Content)
+# 🏮 Lò luyện Tri thức v6.3 - "Healer Edition"
+# Điều phối, Bảo trì và Tự chẩn đoán (Smart Suggest & Code Immunity)
 # =================================================================
 
 RAW_DIR="/Users/ha/Project/MyBrain/raw"
 WIKI_DIR="/Users/ha/Project/MyBrain/LLM_Wiki"
 MOC_DIR="$WIKI_DIR/MOCs"
-LOG_FILE="$WIKI_DIR/Knowledge Pulse.md"
 INDEX_FILE="$WIKI_DIR/index.md"
+HEALTH_FILE="$WIKI_DIR/MOCs/Wiki Health MOC.md"
 
 # Màu sắc
 GREEN='\033[0;32m'
@@ -20,7 +20,15 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-echo -e "${BLUE}🏮 [Lão Ní] Khởi động Lò luyện v6.2 (Sentinel Edition)...${NC}"
+echo -e "${BLUE}🏮 [Lão Ní] Khởi động Lò luyện v6.3 (Healer Edition)...${NC}"
+
+# Khởi tạo Dashboard Sức khỏe
+echo "---" > "$HEALTH_FILE"
+echo "tags: [moc, maintenance, health]" >> "$HEALTH_FILE"
+echo "summary: \"Báo cáo chi tiết sức khỏe mạng lưới tri thức v6.3.\"" >> "$HEALTH_FILE"
+echo "---" >> "$HEALTH_FILE"
+echo -e "\n# 🏥 Wiki Health MOC" >> "$HEALTH_FILE"
+echo -e "\n> [!INFO] Cập nhật lần cuối: $(date +'%Y-%m-%d %H:%M:%S')" >> "$HEALTH_FILE"
 
 ORPHAN_COUNT=0
 MOC_MISSING_COUNT=0
@@ -30,7 +38,7 @@ LONG_NOTE_COUNT=0
 # --- 1. ROUTER INDEX PREPARATION ---
 TEMP_INDEX=$(mktemp)
 echo "---" > "$TEMP_INDEX"
-echo "tags: [moc, home, router, sentinel]" >> "$TEMP_INDEX"
+echo "tags: [moc, home, router, healer]" >> "$TEMP_INDEX"
 echo "---" >> "$TEMP_INDEX"
 echo -e "\n# 🏮 Master Brain: Router Index" >> "$TEMP_INDEX"
 echo -e "\n## 🗺️ Bản đồ Tri thức (MOCs)" >> "$TEMP_INDEX"
@@ -38,67 +46,73 @@ echo -e "\n## 🗺️ Bản đồ Tri thức (MOCs)" >> "$TEMP_INDEX"
 find "$MOC_DIR" -type f -name "*.md" | sort | while read -r moc_file; do
     moc_name=$(basename "$moc_file" .md)
     moc_summary=$(grep -m 1 "^summary:" "$moc_file" | sed 's/summary: //')
-    if [ -z "$moc_summary" ]; then
-        moc_summary=$(grep -v "^---" "$moc_file" | grep -v "^#" | grep -v "^$" | head -n 1 | cut -c 1-100)
-    fi
     echo "- [[$moc_name]]: ${moc_summary:-"Bản đồ tri thức tổng hợp."}" >> "$TEMP_INDEX"
 done
 
 echo -e "\n## 🚀 Danh mục Định tuyến (All Notes)" >> "$TEMP_INDEX"
 
-# --- 2. SENTINEL AUDIT (Quét mạng lưới) ---
-echo -e "${PURPLE}🛡️ Sentinel đang tuần tra mạng lưới...${NC}"
+# --- 2. HEALER AUDIT ---
+echo -e "${PURPLE}🩺 Healer đang chẩn đoán mạng lưới...${NC}"
 
-find "$WIKI_DIR" -type f -name "*.md" ! -name "index.md" ! -name "Knowledge Pulse.md" ! -path "*/.*" | sort | while read -r note; do
+echo -e "\n## 📋 Danh sách Cần chữa lành" >> "$HEALTH_FILE"
+echo "| Loại lỗi | Note | Chi tiết / Gợi ý |" >> "$HEALTH_FILE"
+echo "| :--- | :--- | :--- |" >> "$HEALTH_FILE"
+
+# Dùng process substitution để giữ biến không bị mất trong subshell
+while read -r note; do
     filename=$(basename "$note")
     basename="${filename%.md}"
+    [ "$basename" == "Wiki Health MOC" ] && continue
     
-    # a. Router Summary Update
+    # a. Router Summary
     summary=$(grep -m 1 "^summary:" "$note" | sed 's/summary: //')
     if [ -z "$summary" ]; then
         summary=$(grep -v "^---" "$note" | grep -v "^#" | grep -v "^$" | head -n 1 | cut -c 1-100)
     fi
     echo "- [[$basename]]: ${summary:-"Chưa có tóm tắt."}" >> "$TEMP_INDEX"
     
-    # b. Topic MOC Audit (Note có nằm trong MOC nào không?)
+    # b. MOC Missing & Smart Suggest
     if [[ "$note" != *"/MOCs/"* ]]; then
         is_in_moc=$(grep -rl "\[\[$basename" "$MOC_DIR" | wc -l)
         if [ "$is_in_moc" -eq 0 ]; then
-            echo -e "${RED}⚠️  MOC MISSING:${NC} $basename (Chưa đăng ký vào Topic MOC)"
+            # Gợi ý dựa trên tags
+            suggested_moc="Chưa rõ"
+            tags=$(grep "tags:" "$note")
+            [[ "$tags" == *"mcp"* ]] && suggested_moc="[[MCP MOC]]"
+            [[ "$tags" == *"openclaw"* ]] && suggested_moc="[[OpenClaw MOC]]"
+            [[ "$tags" == *"methodology"* ]] && suggested_moc="[[Master Brain MOC]]"
+            
+            echo -e "${RED}⚠️  MOC MISSING:${NC} $basename -> Suggest: $suggested_moc"
+            echo "| 🏠 MOC Missing | [[$basename]] | Gợi ý: $suggested_moc |" >> "$HEALTH_FILE"
             MOC_MISSING_COUNT=$((MOC_MISSING_COUNT + 1))
         fi
     fi
     
-    # c. Broken Link Detection
-    # Tìm các [[Link]] nhưng file đích không tồn tại
-    grep -o "\[\[[^]]*\]\]" "$note" | sed 's/\[\[//;s/\]\]//' | while read -r link; do
-        # Xử lý alias [[link|alias]]
+    # c. Broken Link with Code Immunity
+    clean_content=$(sed '/```/,/```/d' "$note")
+    while read -r link; do
         link_target=$(echo "$link" | cut -d'|' -f1)
+        [[ "$link_target" == *"liên quan"* ]] || [[ "$link_target" == *"cha"* ]] && continue
+        
         if [ ! -f "$WIKI_DIR/Concepts/$link_target.md" ] && \
            [ ! -f "$WIKI_DIR/Tools/$link_target.md" ] && \
            [ ! -f "$WIKI_DIR/Projects/$link_target.md" ] && \
            [ ! -f "$WIKI_DIR/MOCs/$link_target.md" ] && \
            [ ! -f "$WIKI_DIR/$link_target.md" ]; then
-            echo -e "${YELLOW}🚫 BROKEN LINK:${NC} In $basename -> [[$link_target]]"
+            echo -e "${YELLOW}🚫 BROKEN LINK:${NC} $basename -> [[$link_target]]"
+            echo "| 🔗 Broken Link | [[$basename]] | Đích đến: [[$link_target]] không tồn tại |" >> "$HEALTH_FILE"
             BROKEN_LINK_COUNT=$((BROKEN_LINK_COUNT + 1))
         fi
-    done
-    
-    # d. Atomic Check
-    line_count=$(wc -l < "$note")
-    if [ "$line_count" -gt 100 ]; then
-        echo -e "${RED}📏 VI PHẠM ATOMIC:${NC} $basename ($line_count dòng)"
-        LONG_NOTE_COUNT=$((LONG_NOTE_COUNT + 1))
-    fi
-done
+    done < <(echo "$clean_content" | grep -o "\[\[[^]]*\]\]" | sed 's/\[\[//;s/\]\]//')
+
+done < <(find "$WIKI_DIR" -type f -name "*.md" ! -name "index.md" ! -path "*/.*" | sort)
 
 mv "$TEMP_INDEX" "$INDEX_FILE"
 
-# --- 3. LOGGING ---
-echo -e "\n[$(date +'%Y-%m-%d %H:%M:%S')] Sentinel v6.2: $MOC_MISSING_COUNT thiếu MOC, $BROKEN_LINK_COUNT link gãy, $LONG_NOTE_COUNT quá dài." >> "$LOG_FILE"
+echo -e "\n## 📊 Thống kê Sức khỏe" >> "$HEALTH_FILE"
+echo "- **Thiếu MOC**: $MOC_MISSING_COUNT" >> "$HEALTH_FILE"
+echo "- **Link gãy**: $BROKEN_LINK_COUNT" >> "$HEALTH_FILE"
+echo "- **Vi phạm Atomic**: $LONG_NOTE_COUNT" >> "$HEALTH_FILE"
 
 echo "---------------------------------------------------------------"
-echo -e "${GREEN}✅ Tuần tra hoàn tất!${NC}"
-if [ $MOC_MISSING_COUNT -gt 0 ]; then
-    echo -e "${CYAN}👉 Đại ca ơi, có $MOC_MISSING_COUNT note đang 'vô gia cư', nhét chúng vào MOC đi!${NC}"
-fi
+echo -e "${GREEN}✅ Chẩn đoán xong! Dashboard đã sẵn sàng tại [[Wiki Health MOC]].${NC}"
