@@ -30,6 +30,7 @@ GEMINI_FILE="GEMINI.md"
 SOUL_IMPORTS=(
     "@.agent/rules/GEMINI.md"
     "@.agent/rules/PERSONALITY.md"
+    "@./AGENTS.md"
 )
 
 if [ ! -f "$GEMINI_FILE" ]; then
@@ -41,14 +42,21 @@ if [ ! -f "$GEMINI_FILE" ]; then
     echo -e "\n## 🚀 Project Execution Rules\n- " >> "$GEMINI_FILE"
 else
     log_info "  - Kiểm tra linh hồn trong GEMINI.md hiện tại..."
+    # Tạo file tạm để build header mới
+    TEMP_HEADER=$(mktemp)
+    printf "# 🏯 Master Brain Consumer\n\n" > "$TEMP_HEADER"
+    
+    # Nạp các import bắt buộc
     for imp in "${SOUL_IMPORTS[@]}"; do
-        if ! grep -q "$imp" "$GEMINI_FILE"; then
-            log_info "    + Hút thêm: $imp"
-            # Chèn vào đầu file sau tiêu đề
-            sed -i '' "2i\\
-$imp" "$GEMINI_FILE" 2>/dev/null || sed -i "2i$imp" "$GEMINI_FILE"
-        fi
+        echo "$imp" >> "$TEMP_HEADER"
     done
+    
+    # Lấy nội dung cũ (bỏ qua header cũ và các dòng @ tương tự để tránh trùng)
+    grep -v "^# " "$GEMINI_FILE" | grep -v "^@" | grep -v "^[[:space:]]*$" >> "$TEMP_HEADER" || true
+    
+    # Ghi đè lại file chính
+    mv "$TEMP_HEADER" "$GEMINI_FILE"
+    log_info "  - Đã cập nhật và sắp xếp lại linh hồn trong GEMINI.md"
 fi
 
 log_step "✅ Xong! Linh hồn S-Tier đã nhập xác. Múa lửa thôi ní! 🏮🔥🍻"
