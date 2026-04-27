@@ -16,7 +16,6 @@ MASTER_BRAIN_ROOT="${MASTER_BRAIN_ROOT:-$DEFAULT_BRAIN_ROOT}"
 MASTER_BRAIN_WIKI_DIR="${MASTER_BRAIN_WIKI_DIR:-$MASTER_BRAIN_ROOT/LLM_Wiki}"
 MASTER_BRAIN_RAW_DIR="${MASTER_BRAIN_RAW_DIR:-$MASTER_BRAIN_ROOT/raw}"
 MASTER_BRAIN_VERSION_FILE="${MASTER_BRAIN_VERSION_FILE:-$MASTER_BRAIN_ROOT/.agent/VERSION}"
-MASTER_BRAIN_VERSION_SYNC_MANIFEST="${MASTER_BRAIN_VERSION_SYNC_MANIFEST:-$MASTER_BRAIN_ROOT/.version-sync-manifest}"
 MASTER_BRAIN_STRICT_SUMMARY="${MASTER_BRAIN_STRICT_SUMMARY:-1}"
 MASTER_BRAIN_IGNORE_DRAFT_LINKS="${MASTER_BRAIN_IGNORE_DRAFT_LINKS:-1}"
 MASTER_BRAIN_ATOMIC_LINE_LIMIT="${MASTER_BRAIN_ATOMIC_LINE_LIMIT:-100}"
@@ -119,31 +118,6 @@ safe_replace_version() {
     perl -0pi -e 's/(?:Refinery-)?v6\.\d+/$ENV{CURRENT_VERSION}/g' "$file"
 }
 
-iter_version_sync_files() {
-    if [ -f "$MASTER_BRAIN_VERSION_SYNC_MANIFEST" ]; then
-        while IFS= read -r relpath || [ -n "$relpath" ]; do
-            case "$relpath" in
-                ""|\#*)
-                    continue
-                    ;;
-            esac
-            printf '%s/%s\n' "$MASTER_BRAIN_ROOT" "$relpath"
-        done < "$MASTER_BRAIN_VERSION_SYNC_MANIFEST"
-        return
-    fi
-
-    cat <<EOF
-$MASTER_BRAIN_ROOT/GEMINI.md
-$MASTER_BRAIN_ROOT/README.md
-$MASTER_BRAIN_ROOT/.agent/rules/GEMINI.md
-$MASTER_BRAIN_ROOT/.agent/skills/master-brain-management/SKILL.md
-$WIKI_DIR/Concepts/LLM Wiki.md
-$WIKI_DIR/Concepts/Master Brain Sharing Guide.md
-$WIKI_DIR/MOCs/Master Brain MOC.md
-$WIKI_DIR/MOCs/Projects MOC.md
-EOF
-}
-
 note_exists() {
     local link_target="$1"
 
@@ -208,9 +182,20 @@ if [ ! -d "$WIKI_DIR" ] || [ ! -d "$MOC_DIR" ]; then
 fi
 
 log_step "🔄 Đồng bộ version string trong các tài liệu điều phối..."
-while IFS= read -r file; do
+files_to_sync=(
+    "$MASTER_BRAIN_ROOT/GEMINI.md"
+    "$MASTER_BRAIN_ROOT/README.md"
+    "$MASTER_BRAIN_ROOT/.agent/rules/GEMINI.md"
+    "$MASTER_BRAIN_ROOT/.agent/skills/master-brain-management/SKILL.md"
+    "$WIKI_DIR/Concepts/LLM Wiki.md"
+    "$WIKI_DIR/Concepts/Master Brain Sharing Guide.md"
+    "$WIKI_DIR/MOCs/Master Brain MOC.md"
+    "$WIKI_DIR/MOCs/Projects MOC.md"
+)
+
+for file in "${files_to_sync[@]}"; do
     safe_replace_version "$file"
-done < <(iter_version_sync_files)
+done
 
 cat > "$HEALTH_FILE" <<EOF
 ---
@@ -275,12 +260,6 @@ while read -r note; do
         LONG_NOTE_COUNT=$((LONG_NOTE_COUNT + 1))
     fi
 
-    if [[ "$note" != *"/MOCs/"* ]]; then
-        if grep -RFq "[[${basename}" "$MOC_DIR" 2>/dev/null; then
-            is_in_moc=1
-        else
-            is_in_moc=0
-        fi
         if [ "$is_in_moc" -eq 0 ]; then
             suggested_moc="$(project_note_link_target "$note" "$basename")"
             echo "| 🏠 MOC Missing | [[${basename}]] | Gợi ý: ${suggested_moc} |" >> "$HEALTH_FILE"
