@@ -260,23 +260,31 @@ while read -r note; do
         LONG_NOTE_COUNT=$((LONG_NOTE_COUNT + 1))
     fi
 
-        if [ "$is_in_moc" -eq 0 ]; then
-            suggested_moc="$(project_note_link_target "$note" "$basename")"
-            echo "| 🏠 MOC Missing | [[${basename}]] | Gợi ý: ${suggested_moc} |" >> "$HEALTH_FILE"
-            MOC_MISSING_COUNT=$((MOC_MISSING_COUNT + 1))
+    # Kiểm tra note có được link từ ít nhất 1 MOC không
+    is_in_moc=0
+    while read -r moc_file; do
+        if grep -qF "[[${basename}]]" "$moc_file" 2>/dev/null; then
+            is_in_moc=1
+            break
         fi
+    done < <(find "$MOC_DIR" -type f -name "*.md" | sort)
+
+    if [ "$is_in_moc" -eq 0 ]; then
+        suggested_moc="$(project_note_link_target "$note" "$basename")"
+        echo "| 🏠 MOC Missing | [[${basename}]] | Gợi ý: ${suggested_moc} |" >> "$HEALTH_FILE"
+        MOC_MISSING_COUNT=$((MOC_MISSING_COUNT + 1))
     fi
 
-    # [NEW] Kiểm tra Tag Mandatory cho MOCs
+    # Kiểm tra Tag Mandatory cho MOCs
     if [[ "$note" == *"/MOCs/"* ]]; then
         tags="$(frontmatter_value "$note" "tags" || true)"
         if [[ "$tags" != *"moc"* ]]; then
             echo "| 🏷️ Missing Tag | [[${basename}]] | Thiếu tag \`#moc\` bắt buộc cho MOC |" >> "$HEALTH_FILE"
         fi
         if [[ "$basename" == *"MOC"* ]] && [[ "$basename" != "Master Brain MOC" ]] && [[ "$basename" != "Projects MOC" ]]; then
-             if [[ "$tags" != *"projects"* ]]; then
+            if [[ "$tags" != *"projects"* ]]; then
                 echo "| 🏷️ Missing Tag | [[${basename}]] | Thiếu tag \`#projects\` cho Project MOC |" >> "$HEALTH_FILE"
-             fi
+            fi
         fi
     fi
 
