@@ -288,6 +288,19 @@ while read -r note; do
         fi
     fi
 
+    # [NEW] Kiểm tra Tag Mandatory cho MOCs
+    if [[ "$note" == *"/MOCs/"* ]]; then
+        tags="$(frontmatter_value "$note" "tags" || true)"
+        if [[ "$tags" != *"moc"* ]]; then
+            echo "| 🏷️ Missing Tag | [[${basename}]] | Thiếu tag \`#moc\` bắt buộc cho MOC |" >> "$HEALTH_FILE"
+        fi
+        if [[ "$basename" == *"MOC"* ]] && [[ "$basename" != "Master Brain MOC" ]] && [[ "$basename" != "Projects MOC" ]]; then
+             if [[ "$tags" != *"projects"* ]]; then
+                echo "| 🏷️ Missing Tag | [[${basename}]] | Thiếu tag \`#projects\` cho Project MOC |" >> "$HEALTH_FILE"
+             fi
+        fi
+    fi
+
     inside_code=0
     while IFS= read -r line || [ -n "$line" ]; do
         if [[ "$line" == *'```'* ]]; then
