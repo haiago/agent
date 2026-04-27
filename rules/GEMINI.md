@@ -3,88 +3,41 @@ trigger: always_on
 priority: P0
 ---
 
-# GEMINI.md — Universal Rules (Superpowers Edition)
+# GEMINI.md — Shared Brain Governance
 
-> **Priority:** P0 (GEMINI.md) > P1 (SKILL.md)
+> Priority: P0 governance. Project-specific execution rules should live outside this shared brain layer.
 
----
+## Language & Output
 
-## 🌐 Language & Output
+- Respond in the user's language. Keep code and code comments in English.
+- Keep chat responses concise unless the user asks for more depth.
+- Avoid meta-commentary and filler.
 
-- Respond in **user's language** (code/comments in English)
-- **Chat responses: max 3 sentences** (canonical — overrides all other rules)
-- **Implementation Plans & Reports**: Always write in **Vietnamese**.
-- No meta-commentary ("I am analyzing...", "I will now...")
-- All technical details → `reports/` (must include **Token Usage** section)
+## Shared Brain Contract
 
----
+- Treat `LLM_Wiki/` as the shared memory source of truth across projects.
+- Read `LLM_Wiki/index.md` before creating new notes or repeating known context.
+- New notes must be linked into the graph and registered in the correct MOC.
+- Prefer adding a durable knowledge artifact over leaving important reasoning trapped in chat.
 
-## ⚡ Initialization & Persona (MANDATORY)
+## Note Quality Rules
 
-- **ALWAYS** act as the "Lão Ní" Senior Engineer defined in `.agent/rules/PERSONALITY.md`.
-- **ALWAYS** automatically call `activate_skill('using-superpowers')` at the beginning of a new task if you are unsure of the workflow.
+- Every durable note should include frontmatter with at least:
+  - `tags`
+  - `summary`
+- Keep notes atomic. If a note exceeds the local atomic limit, split it.
+- Avoid dead notes: if a note has no meaningful links, route it into a MOC before finishing.
+- Preserve technical terminology from the source material when translation would reduce accuracy.
 
----
+## Ingest & Maintenance
 
-## ⚡ Superpowers Workflow (MANDATORY)
+- Use `.agent/skills/master-brain-management/scripts/ingest-memory.sh` as the canonical ingest entrypoint.
+- Resolve brain paths through `MASTER_BRAIN_ROOT` or the script's auto-detected repo root. Do not hardcode machine-specific absolute paths in shared rules or scripts.
+- After substantial knowledge updates, regenerate `LLM_Wiki/index.md` and `LLM_Wiki/MOCs/Wiki Health MOC.md`.
+- Treat `Wiki Health MOC` findings as cleanup debt, not ignorable noise.
 
-Operate using the **Research -> Strategy -> Execution** lifecycle:
+## Scope Boundary
 
-0.  **Memory Check & Sync**: ALWAYS check `/Users/ha/Project/MyBrain/LLM_Wiki` for relevant Knowledge Items (KIs) BEFORE research. **ALWAYS** run `git submodule update --remote --merge` to ensure all agent skills and rules are up to date.
-1.  **Research**: Use `grep_search` and `glob` to understand the codebase.
-2.  **Strategy**: For complex tasks, use `activate_skill` with `brainstorming` to design and `writing-plans` to create a plan.
-3.  **Execution**: Use `subagent-driven-development` or `executing-plans` for implementation.
-4.  **Validation**: ALWAYS run `npm run type-check` and relevant tests after any change.
-
----
-
-## 🛑 Push Back & Socratic Gate
-
-**PUSH BACK** on vague requests. Thà hỏi kỹ còn hơn làm sai. Nếu yêu cầu thiếu context, ní phải dùng bộ khung **PUC** để hỏi lại:
-- **P**urpose: Mục tiêu cuối cùng là gì?
-- **U**sers: Ai sẽ dùng cái này?
-- **C**onstraints: Có ràng buộc gì về kỹ thuật hay UI không?
-
-| Situation     | Action                                              |
-| ------------- | --------------------------------------------------- |
-| New feature   | Ask **PUC** questions (Purpose, Users, Constraints) |
-| Bug fix       | Confirm reproduction steps + ask impact             |
-| Vague request | STOP and ask for scope & expected behavior          |
-
-> 🔴 **Skip Gate if:** Instructions are explicit and clear (e.g., "Implement X as planned").
-
----
-
-## 🧹 Anti-Slop & Engineering Standards
-
-- **Anti-Slop**: KHÔNG viết boilerplate thừa, KHÔNG giải thích dông dài, KHÔNG comment lặp lại code. Code phải "sắc lẹm" và đi thẳng vào vấn đề.
-- **Clean Code**: Concise, self-documenting, no over-engineering.
-- **Testing**: Unit > Int > E2E, AAA Pattern (Arrange, Act, Assert).
-- **Performance**: Measure before and after optimization.
-- **Atomic Commits**: Commit mỗi bước logic nhỏ ngay khi xong.
-
----
-
-## 📁 Standardized Reporting & Knowledge Harvesting
-
-All technical summaries and analysis MUST be stored in the `/reports/` folder:
-- **Format**: Markdown (.md)
-- **Naming**: `{category}-{task-slug}.md`
-- **Content**: Summary, Findings, Proposed changes, and Token Usage.
-
-**KNOWLEDGE HARVESTING (MANDATORY):**
-Whenever a **Design Spec** or **Implementation Plan** is finalized in a project:
-1.  **Backup**: Copy the file to `/Users/ha/Project/MyBrain/raw/Project_Name/`.
-2.  **Ingest**: Run `bash /Users/ha/Project/MyBrain/.agent/skills/master-brain-management/scripts/ingest-memory.sh` to update the Master Brain.
-
----
-
-## 📊 Token Tracking
-
-For every non-trivial task, include a token estimation table in the report:
-
-| Component | Estimated Tokens |
-|-----------|------------------|
-| **Input Context** (System + Files) | ~N,NNN |
-| **Output Generation** (Report + Chat) | ~N,NNN |
-| **Total Task Consumption** | **~N,NNN tokens** |
+- Shared brain governance defines how agents read, write, and maintain memory.
+- Build commands, test commands, package-manager commands, and runtime-specific workflows belong to project execution rules, not this file.
+- If a project needs stricter execution policy, define it in the consuming repo so the shared submodule stays portable.

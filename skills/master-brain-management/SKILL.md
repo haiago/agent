@@ -8,7 +8,9 @@ description: Quy trình Sentinel Refinery-v6.6 - Ép Agent trích xuất tinh ho
 Mục tiêu tối thượng: **Triệt tiêu Slop (rác tóm tắt)**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
 
 ## 🧱 Quy chuẩn Atomic Note (BẮT BUỘC)
-...
+1. **One idea, one file**: Mỗi note chỉ nên giải quyết một khái niệm, một công cụ, hoặc một bối cảnh rõ ràng.
+2. **Summary-first**: Mọi durable note PHẢI có frontmatter `summary:` để router index định tuyến tốt.
+3. **Graph-aware**: Note mới PHẢI có ít nhất một liên kết đi vào MOC và một liên kết đi ra note liên quan nếu phù hợp.
 4. **Length**: > 100 dòng = THẤT BẠI. Phải chẻ nhỏ thành các note con.
 
 ## 🦅 Thiết luật Harvest (Project Management)
@@ -31,6 +33,7 @@ Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lư
 - **Dashboard Sức khỏe**: `LLM_Wiki/MOCs/Wiki Health MOC.md`.
 - **Mẫu ghi chú**: `LLM_Wiki/Tools/Note Templates.md`.
 - **Cổng vào**: `LLM_Wiki/index.md`.
+- **Config gốc**: `MASTER_BRAIN_ROOT` (tùy chọn, dùng khi shared brain không nằm ngay dưới repo hiện tại).
 
 ## 🔄 Quy trình Ingest Refinery-v6.6 (The Automator Loop)
 1. **Search & Scan**: Quét `/raw` tìm quặng.
@@ -41,7 +44,7 @@ Mọi Agent ĐỀU PHẢI sử dụng công cụ sau để bảo trì mạng lư
 
 ## ⚠️ Anti-Slop Safeguards (Cấm kỵ)
 - **Language Integrity (MANDATORY)**: Đối với tài liệu nguồn (quặng thô) bằng tiếng Anh, PHẢI giữ nguyên nội dung Atomic Note bằng tiếng Anh. Tuyệt đối không dịch sang tiếng Việt để tránh làm sai lệch ngữ nghĩa kỹ thuật và thuật ngữ chuyên môn.
-- **Đồng bộ tuyệt đối (MANDATORY)**: Mọi thay đổi về logic (Skill, Script, Cấu trúc) PHẢI đi kèm với việc cập nhật đồng bộ các file điều phối (`GEMINI.md`, `index.md`, `LLM Wiki.md`) và các MOC liên quan. Cấm tuyệt đối việc để tồn tại phiên bản cũ hoặc "link ma".
+- **Đồng bộ tuyệt đối (MANDATORY)**: Mọi thay đổi về logic (Skill, Script, Cấu trúc) PHẢI đi kèm với việc cập nhật đồng bộ các file điều phối (`GEMINI.md`, `LLM Wiki.md`, tài liệu contract) và các MOC liên quan. Cấm tuyệt đối việc để tồn tại phiên bản cũ hoặc "link ma".
 - KHÔNG để tri thức mồ côi.
 - KHÔNG để mâu thuẫn tồn tại (Note A nói X, Note B nói Y -> Phải hợp nhất hoặc sửa đổi).
 - Mọi note phải có "giá trị định tuyến" (Tóm tắt 1 dòng chất lượng).

@@ -1,141 +1,321 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # =================================================================
-# 🏮 Lò luyện Tri thức v6.5 - "Automator Edition"
-# Điều phối, Bảo trì và Tự động đồng bộ Phiên bản (Global Version Sync)
+# Master Brain ingest pipeline
+# - Portable path resolution for shared submodule usage
+# - Stable public outputs: LLM_Wiki/index.md + Wiki Health MOC.md
+# - Stronger health checks without breaking existing note layouts
 # =================================================================
 
-RAW_DIR="/Users/ha/Project/MyBrain/raw"
-WIKI_DIR="/Users/ha/Project/MyBrain/LLM_Wiki"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEFAULT_BRAIN_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+
+MASTER_BRAIN_ROOT="${MASTER_BRAIN_ROOT:-$DEFAULT_BRAIN_ROOT}"
+MASTER_BRAIN_WIKI_DIR="${MASTER_BRAIN_WIKI_DIR:-$MASTER_BRAIN_ROOT/LLM_Wiki}"
+MASTER_BRAIN_RAW_DIR="${MASTER_BRAIN_RAW_DIR:-$MASTER_BRAIN_ROOT/raw}"
+MASTER_BRAIN_VERSION_FILE="${MASTER_BRAIN_VERSION_FILE:-$MASTER_BRAIN_ROOT/.agent/VERSION}"
+MASTER_BRAIN_STRICT_SUMMARY="${MASTER_BRAIN_STRICT_SUMMARY:-1}"
+MASTER_BRAIN_IGNORE_DRAFT_LINKS="${MASTER_BRAIN_IGNORE_DRAFT_LINKS:-1}"
+MASTER_BRAIN_ATOMIC_LINE_LIMIT="${MASTER_BRAIN_ATOMIC_LINE_LIMIT:-100}"
+
+RAW_DIR="$MASTER_BRAIN_RAW_DIR"
+WIKI_DIR="$MASTER_BRAIN_WIKI_DIR"
 MOC_DIR="$WIKI_DIR/MOCs"
 INDEX_FILE="$WIKI_DIR/index.md"
-HEALTH_FILE="$WIKI_DIR/MOCs/Wiki Health MOC.md"
-VERSION_FILE="/Users/ha/Project/MyBrain/.agent/VERSION"
-CURRENT_VERSION=$(cat "$VERSION_FILE")
+HEALTH_FILE="$MOC_DIR/Wiki Health MOC.md"
+VERSION_FILE="$MASTER_BRAIN_VERSION_FILE"
+CURRENT_VERSION="$(cat "$VERSION_FILE")"
+export CURRENT_VERSION
 
-# Màu sắc
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-YELLOW='\1;33m'
+YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-echo -e "${BLUE}🏮 [Lão Ní] Khởi động Lò luyện $CURRENT_VERSION (Automator Edition)...${NC}"
+log_info() {
+    echo -e "${BLUE}$1${NC}"
+}
 
-# --- 0. GLOBAL VERSION SYNC (Tự động đồng bộ phiên bản) ---
-echo -e "${CYAN}🔄 Đang đồng bộ phiên bản $CURRENT_VERSION toàn hệ thống...${NC}"
-# Quét và thay thế các chuỗi version cũ (v6.X hoặc Refinery-v6.X) bằng phiên bản hiện tại
-files_to_sync=("$WIKI_DIR/Concepts/LLM Wiki.md" "$WIKI_DIR/MOCs/Master Brain MOC.md" "/Users/ha/Project/MyBrain/GEMINI.md" "/Users/ha/Project/MyBrain/.agent/skills/master-brain-management/SKILL.md" "$WIKI_DIR/Concepts/Master Brain Sharing Guide.md" "$WIKI_DIR/MOCs/Projects MOC.md")
+log_step() {
+    echo -e "${CYAN}$1${NC}"
+}
+
+log_warn() {
+    echo -e "${YELLOW}$1${NC}"
+}
+
+log_error() {
+    echo -e "${RED}$1${NC}"
+}
+
+frontmatter_value() {
+    local file="$1"
+    local key="$2"
+    awk -v key="$key" '
+        BEGIN { in_fm = 0; started = 0 }
+        NR == 1 && $0 == "---" { in_fm = 1; started = 1; next }
+        started && in_fm && $0 == "---" { exit }
+        in_fm && index($0, key ":") == 1 {
+            value = substr($0, length(key) + 2)
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+            print value
+            exit
+        }
+    ' "$file"
+}
+
+body_summary() {
+    local file="$1"
+    awk '
+        BEGIN { in_fm = 0; started = 0 }
+        NR == 1 && $0 == "---" { in_fm = 1; started = 1; next }
+        started && in_fm && $0 == "---" { in_fm = 0; next }
+        in_fm { next }
+        /^#/ { next }
+        /^\[\[/ { next }
+        /^---$/ { next }
+        /^[[:space:]]*$/ { next }
+        {
+            line = $0
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+            print substr(line, 1, 140)
+            exit
+        }
+    ' "$file"
+}
+
+note_summary() {
+    local file="$1"
+    local summary
+
+    summary="$(frontmatter_value "$file" "summary" || true)"
+    if [ -n "$summary" ]; then
+        printf '%s\n' "$summary"
+        return
+    fi
+
+    body_summary "$file"
+}
+
+has_summary() {
+    local file="$1"
+    [ -n "$(frontmatter_value "$file" "summary" || true)" ]
+}
+
+note_status() {
+    local file="$1"
+    frontmatter_value "$file" "status" || true
+}
+
+safe_replace_version() {
+    local file="$1"
+    [ -f "$file" ] || return 0
+    perl -0pi -e 's/(?:Refinery-)?v6\.\d+/$ENV{CURRENT_VERSION}/g' "$file"
+}
+
+note_exists() {
+    local link_target="$1"
+
+    if [[ "$link_target" == */* ]]; then
+        [ -f "$WIKI_DIR/$link_target.md" ] && return 0
+    fi
+
+    [ -f "$WIKI_DIR/Concepts/$link_target.md" ] && return 0
+    [ -f "$WIKI_DIR/Tools/$link_target.md" ] && return 0
+    [ -f "$WIKI_DIR/Projects/$link_target.md" ] && return 0
+    [ -f "$WIKI_DIR/MOCs/$link_target.md" ] && return 0
+    [ -f "$WIKI_DIR/$link_target.md" ] && return 0
+
+    return 1
+}
+
+should_ignore_link() {
+    local link_target="$1"
+    local source_line="$2"
+
+    [[ "$link_target" == *"liên quan"* ]] && return 0
+    [[ "$link_target" == *"cha"* ]] && return 0
+
+    if [ "$MASTER_BRAIN_IGNORE_DRAFT_LINKS" = "1" ]; then
+        [[ "$source_line" == *"Pending Harvest"* ]] && return 0
+        [[ "$source_line" == *"Draft"* ]] && return 0
+        [[ "$source_line" == *"Planned"* ]] && return 0
+        [[ "$source_line" == *"TBD"* ]] && return 0
+    fi
+
+    return 1
+}
+
+project_note_link_target() {
+    local note="$1"
+    local basename="$2"
+
+    case "$note" in
+        "$WIKI_DIR/Concepts/"*)
+            printf '[[%s MOC]]' "$basename"
+            ;;
+        "$WIKI_DIR/Tools/"*)
+            printf '[[Master Brain MOC]]'
+            ;;
+        "$WIKI_DIR/Projects/"*)
+            printf '[[Projects MOC]]'
+            ;;
+        *)
+            printf 'Chưa rõ'
+            ;;
+    esac
+}
+
+log_info "🏮 Khởi động Master Brain ingest $CURRENT_VERSION"
+log_step "Root: $MASTER_BRAIN_ROOT"
+log_step "Wiki: $WIKI_DIR"
+log_step "Raw:  $RAW_DIR"
+
+if [ ! -d "$WIKI_DIR" ] || [ ! -d "$MOC_DIR" ]; then
+    log_error "❌ Không tìm thấy thư mục wiki hoặc MOC. Kiểm tra MASTER_BRAIN_ROOT / MASTER_BRAIN_WIKI_DIR."
+    exit 1
+fi
+
+log_step "🔄 Đồng bộ version string trong các tài liệu điều phối..."
+files_to_sync=(
+    "$MASTER_BRAIN_ROOT/GEMINI.md"
+    "$MASTER_BRAIN_ROOT/README.md"
+    "$MASTER_BRAIN_ROOT/.agent/rules/GEMINI.md"
+    "$MASTER_BRAIN_ROOT/.agent/skills/master-brain-management/SKILL.md"
+    "$WIKI_DIR/Concepts/LLM Wiki.md"
+    "$WIKI_DIR/Concepts/Master Brain Sharing Guide.md"
+    "$WIKI_DIR/MOCs/Master Brain MOC.md"
+    "$WIKI_DIR/MOCs/Projects MOC.md"
+)
 
 for file in "${files_to_sync[@]}"; do
-    if [ -f "$file" ]; then
-        # Sử dụng sed để thay thế linh hoạt các pattern version cũ sang Refinery-v6.6
-        sed -i '' "s/\(Refinery-\)\{0,1\}v6\.[0-9]/$CURRENT_VERSION/g" "$file"
-    fi
+    safe_replace_version "$file"
 done
 
-# Khởi tạo Dashboard Sức khỏe
-echo "---" > "$HEALTH_FILE"
-echo "tags: [moc, maintenance, health]" >> "$HEALTH_FILE"
-echo "summary: \"Báo cáo chi tiết sức khỏe mạng lưới tri thức $CURRENT_VERSION.\"" >> "$HEALTH_FILE"
-echo "---" >> "$HEALTH_FILE"
-echo -e "\n# 🏥 Wiki Health MOC" >> "$HEALTH_FILE"
-echo -e "\n> [!INFO] Cập nhật lần cuối: $(date +'%Y-%m-%d %H:%M:%S')" >> "$HEALTH_FILE"
+cat > "$HEALTH_FILE" <<EOF
+---
+tags: [moc, maintenance, health]
+summary: "Báo cáo chi tiết sức khỏe mạng lưới tri thức $CURRENT_VERSION."
+---
 
-ORPHAN_COUNT=0
+# 🏥 Wiki Health MOC
+
+> [!INFO] Cập nhật lần cuối: $(date +'%Y-%m-%d %H:%M:%S')
+
+## 📋 Danh sách Cần chữa lành
+| Loại lỗi | Note | Chi tiết / Gợi ý |
+| :--- | :--- | :--- |
+EOF
+
+TEMP_INDEX="$(mktemp)"
+cat > "$TEMP_INDEX" <<EOF
+---
+tags: [moc, home, router, healer]
+---
+
+# 🏮 Master Brain: Router Index
+
+## 🗺️ Bản đồ Tri thức (MOCs)
+EOF
+
+while read -r moc_file; do
+    moc_name="$(basename "$moc_file" .md)"
+    moc_summary="$(note_summary "$moc_file")"
+    echo "- [[${moc_name}]]: ${moc_summary:-Bản đồ tri thức tổng hợp.}" >> "$TEMP_INDEX"
+done < <(find "$MOC_DIR" -type f -name "*.md" | sort)
+
+echo "" >> "$TEMP_INDEX"
+echo "## 🚀 Danh mục Định tuyến (All Notes)" >> "$TEMP_INDEX"
+
 MOC_MISSING_COUNT=0
 BROKEN_LINK_COUNT=0
 LONG_NOTE_COUNT=0
+MISSING_SUMMARY_COUNT=0
+TOTAL_NOTES=0
 
-# --- 1. ROUTER INDEX PREPARATION ---
-TEMP_INDEX=$(mktemp)
-echo "---" > "$TEMP_INDEX"
-echo "tags: [moc, home, router, healer]" >> "$TEMP_INDEX"
-echo "---" >> "$TEMP_INDEX"
-echo -e "\n# 🏮 Master Brain: Router Index" >> "$TEMP_INDEX"
-echo -e "\n## 🗺️ Bản đồ Tri thức (MOCs)" >> "$TEMP_INDEX"
+log_step "🩺 Đang chẩn đoán mạng lưới tri thức..."
 
-find "$MOC_DIR" -type f -name "*.md" | sort | while read -r moc_file; do
-    moc_name=$(basename "$moc_file" .md)
-    moc_summary=$(grep -m 1 "^summary:" "$moc_file" | sed 's/summary: //')
-    echo "- [[$moc_name]]: ${moc_summary:-"Bản đồ tri thức tổng hợp."}" >> "$TEMP_INDEX"
-done
-
-echo -e "\n## 🚀 Danh mục Định tuyến (All Notes)" >> "$TEMP_INDEX"
-
-# --- 2. HEALER AUDIT ---
-echo -e "${PURPLE}🩺 Healer đang chẩn đoán mạng lưới...${NC}"
-
-echo -e "\n## 📋 Danh sách Cần chữa lành" >> "$HEALTH_FILE"
-echo "| Loại lỗi | Note | Chi tiết / Gợi ý |" >> "$HEALTH_FILE"
-echo "| :--- | :--- | :--- |" >> "$HEALTH_FILE"
-
-# Dùng process substitution để giữ biến không bị mất trong subshell
 while read -r note; do
-    filename=$(basename "$note")
+    filename="$(basename "$note")"
     basename="${filename%.md}"
-    [ "$basename" == "Wiki Health MOC" ] && continue
-    
-    # a. Router Summary
-    summary=$(grep -m 1 "^summary:" "$note" | sed 's/summary: //')
-    if [ -z "$summary" ]; then
-        summary=$(grep -v "^---" "$note" | grep -v "^#" | grep -v "^$" | head -n 1 | cut -c 1-100)
+    TOTAL_NOTES=$((TOTAL_NOTES + 1))
+
+    summary="$(note_summary "$note")"
+    echo "- [[${basename}]]: ${summary:-Chưa có tóm tắt.}" >> "$TEMP_INDEX"
+
+    if [ "$MASTER_BRAIN_STRICT_SUMMARY" = "1" ] && ! has_summary "$note"; then
+        echo "| 📝 Missing Summary | [[${basename}]] | Thêm frontmatter \`summary:\` để tăng chất lượng router index |" >> "$HEALTH_FILE"
+        MISSING_SUMMARY_COUNT=$((MISSING_SUMMARY_COUNT + 1))
     fi
-    echo "- [[$basename]]: ${summary:-"Chưa có tóm tắt."}" >> "$TEMP_INDEX"
-    
-    # b. MOC Missing & Smart Suggest
+
+    note_lines="$(wc -l < "$note" | tr -d ' ')"
+    status="$(note_status "$note")"
+    if [ "$note_lines" -gt "$MASTER_BRAIN_ATOMIC_LINE_LIMIT" ] && [ "$status" != "reference" ] && [ "$status" != "archived" ]; then
+        echo "| ✂️ Atomic Too Long | [[${basename}]] | ${note_lines} dòng > giới hạn ${MASTER_BRAIN_ATOMIC_LINE_LIMIT} |" >> "$HEALTH_FILE"
+        LONG_NOTE_COUNT=$((LONG_NOTE_COUNT + 1))
+    fi
+
     if [[ "$note" != *"/MOCs/"* ]]; then
-        is_in_moc=$(grep -rl "\[\[$basename" "$MOC_DIR" | wc -l)
+        if grep -RFq "[[${basename}" "$MOC_DIR" 2>/dev/null; then
+            is_in_moc=1
+        else
+            is_in_moc=0
+        fi
         if [ "$is_in_moc" -eq 0 ]; then
-            # Gợi ý động: So khớp từng tag của note với tên các file MOC hiện có
-            suggested_moc="Chưa rõ"
-            # Lấy danh sách tags, bỏ dấu phẩy và ngoặc vuông, chuyển thành mảng
-            tags_list=$(grep "tags:" "$note" | sed 's/tags: //' | tr -d '[],' | tr '[:upper:]' '[:lower:]')
-            
-            for tag in $tags_list; do
-                # Tìm file MOC nào có tên chứa cái tag này (không phân biệt hoa thường)
-                moc_match=$(find "$MOC_DIR" -type f -iname "*$tag*MOC.md" | head -n 1)
-                if [ -n "$moc_match" ]; then
-                    suggested_moc="[$(basename "$moc_match" .md)]]"
-                    suggested_moc="[[${suggested_moc}" # Đảm bảo đúng định dạng [[...]]
-                    suggested_moc=$(echo "$suggested_moc" | sed 's/\[\[\[/\[\[/') # Sửa lỗi ngoặc dư
-                    break
-                fi
-            done
-            
-            echo -e "${RED}⚠️  MOC MISSING:${NC} $basename -> Suggest: $suggested_moc"
-            echo "| 🏠 MOC Missing | [[$basename]] | Gợi ý: $suggested_moc |" >> "$HEALTH_FILE"
+            suggested_moc="$(project_note_link_target "$note" "$basename")"
+            echo "| 🏠 MOC Missing | [[${basename}]] | Gợi ý: ${suggested_moc} |" >> "$HEALTH_FILE"
             MOC_MISSING_COUNT=$((MOC_MISSING_COUNT + 1))
         fi
     fi
-    
-    # c. Broken Link with Code Immunity
-    clean_content=$(sed '/```/,/```/d' "$note")
-    while read -r link; do
-        link_target=$(echo "$link" | cut -d'|' -f1)
-        [[ "$link_target" == *"liên quan"* ]] || [[ "$link_target" == *"cha"* ]] && continue
-        
-        if [ ! -f "$WIKI_DIR/Concepts/$link_target.md" ] && \
-           [ ! -f "$WIKI_DIR/Tools/$link_target.md" ] && \
-           [ ! -f "$WIKI_DIR/Projects/$link_target.md" ] && \
-           [ ! -f "$WIKI_DIR/MOCs/$link_target.md" ] && \
-           [ ! -f "$WIKI_DIR/$link_target.md" ]; then
-            echo -e "${YELLOW}🚫 BROKEN LINK:${NC} $basename -> [[$link_target]]"
-            echo "| 🔗 Broken Link | [[$basename]] | Đích đến: [[$link_target]] không tồn tại |" >> "$HEALTH_FILE"
-            BROKEN_LINK_COUNT=$((BROKEN_LINK_COUNT + 1))
-        fi
-    done < <(echo "$clean_content" | grep -o "\[\[[^]]*\]\]" | sed 's/\[\[//;s/\]\]//')
 
-done < <(find "$WIKI_DIR" -type f -name "*.md" ! -name "index.md" ! -path "*/.*" | sort)
+    inside_code=0
+    while IFS= read -r line || [ -n "$line" ]; do
+        if [[ "$line" == *'```'* ]]; then
+            if [ "$inside_code" -eq 0 ]; then
+                inside_code=1
+            else
+                inside_code=0
+            fi
+            continue
+        fi
+
+        [ "$inside_code" -eq 1 ] && continue
+
+        while [[ "$line" =~ \[\[([^]]+)\]\] ]]; do
+            raw_link="${BASH_REMATCH[1]}"
+            link_target="${raw_link%%|*}"
+
+            if should_ignore_link "$link_target" "$line"; then
+                line="${line#*"[[${raw_link}]]"}"
+                continue
+            fi
+
+            if ! note_exists "$link_target"; then
+                echo "| 🔗 Broken Link | [[${basename}]] | Đích đến: [[${link_target}]] không tồn tại |" >> "$HEALTH_FILE"
+                BROKEN_LINK_COUNT=$((BROKEN_LINK_COUNT + 1))
+            fi
+
+            line="${line#*"[[${raw_link}]]"}"
+        done
+    done < "$note"
+done < <(find "$WIKI_DIR" -type f -name "*.md" ! -name "index.md" ! -path "*/.*" ! -path "*/MOCs/*" | sort)
 
 mv "$TEMP_INDEX" "$INDEX_FILE"
 
-echo -e "\n## 📊 Thống kê Sức khỏe" >> "$HEALTH_FILE"
-echo "- **Thiếu MOC**: $MOC_MISSING_COUNT" >> "$HEALTH_FILE"
-echo "- **Link gãy**: $BROKEN_LINK_COUNT" >> "$HEALTH_FILE"
-echo "- **Vi phạm Atomic**: $LONG_NOTE_COUNT" >> "$HEALTH_FILE"
+cat >> "$HEALTH_FILE" <<EOF
+
+## 📊 Thống kê Sức khỏe
+- **Tổng số note đã quét**: $TOTAL_NOTES
+- **Thiếu MOC**: $MOC_MISSING_COUNT
+- **Thiếu Summary**: $MISSING_SUMMARY_COUNT
+- **Link gãy**: $BROKEN_LINK_COUNT
+- **Vi phạm Atomic**: $LONG_NOTE_COUNT
+EOF
 
 echo "---------------------------------------------------------------"
-echo -e "${GREEN}✅ Chẩn đoán xong! Dashboard đã sẵn sàng tại [[Wiki Health MOC]].${NC}"
+log_info "✅ Hoàn tất. Kiểm tra [[index]] và [[Wiki Health MOC]]."
