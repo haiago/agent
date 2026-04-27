@@ -181,21 +181,34 @@ if [ ! -d "$WIKI_DIR" ] || [ ! -d "$MOC_DIR" ]; then
     exit 1
 fi
 
-log_step "🔄 Đồng bộ version string trong các tài liệu điều phối..."
-files_to_sync=(
-    "$MASTER_BRAIN_ROOT/GEMINI.md"
-    "$MASTER_BRAIN_ROOT/README.md"
-    "$MASTER_BRAIN_ROOT/.agent/rules/GEMINI.md"
-    "$MASTER_BRAIN_ROOT/.agent/skills/master-brain-management/SKILL.md"
-    "$WIKI_DIR/Concepts/LLM Wiki.md"
-    "$WIKI_DIR/Concepts/Master Brain Sharing Guide.md"
-    "$WIKI_DIR/MOCs/Master Brain MOC.md"
-    "$WIKI_DIR/MOCs/Projects MOC.md"
-)
+log_step "🔄 Đồng bộ version string dựa trên .version-sync-manifest..."
+MANIFEST_FILE="$MASTER_BRAIN_ROOT/.version-sync-manifest"
 
-for file in "${files_to_sync[@]}"; do
-    safe_replace_version "$file"
-done
+if [ -f "$MANIFEST_FILE" ]; then
+    while read -r rel_path || [ -n "$rel_path" ]; do
+        # Bỏ qua comment và dòng trống
+        [[ "$rel_path" =~ ^#.* ]] && continue
+        [[ -z "$rel_path" ]] && continue
+        
+        target_file="$MASTER_BRAIN_ROOT/$rel_path"
+        if [ -f "$target_file" ]; then
+            safe_replace_version "$target_file"
+        else
+            log_warn "  ⚠️ File trong manifest không tồn tại: $rel_path"
+        fi
+    done < "$MANIFEST_FILE"
+else
+    log_warn "  ⚠️ Không tìm thấy .version-sync-manifest tại $MANIFEST_FILE. Sử dụng default sync..."
+    # Fallback nếu không có manifest
+    files_to_sync=(
+        "$MASTER_BRAIN_ROOT/GEMINI.md"
+        "$MASTER_BRAIN_ROOT/.agent/rules/GEMINI.md"
+        "$WIKI_DIR/Concepts/LLM Wiki.md"
+    )
+    for file in "${files_to_sync[@]}"; do
+        safe_replace_version "$file"
+    done
+fi
 
 cat > "$HEALTH_FILE" <<EOF
 ---
