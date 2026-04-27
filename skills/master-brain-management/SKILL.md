@@ -1,9 +1,9 @@
 ---
 name: master-brain-management
-description: Quy trình Sentinel Refinery-v6.7 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến. Dùng khi harvest tri thức từ project, tạo atomic note, kiểm tra sức khỏe wiki, hoặc chạy ingest pipeline.
+description: Quy trình Sentinel v7.1 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến. Dùng khi harvest tri thức từ project, tạo atomic note, kiểm tra sức khỏe wiki, hoặc chạy ingest pipeline.
 ---
 
-# Master Brain Management (Sentinel Refinery-v6.7)
+# Master Brain Management (Sentinel v7.1)
 
 Mục tiêu tối thượng: **Triệt tiêu Slop**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
 
@@ -72,7 +72,7 @@ Script sẽ exit với lỗi rõ ràng nếu thiếu:
 - `.agent/VERSION` tồn tại
 - `LLM_Wiki/` và `LLM_Wiki/MOCs/` tồn tại
 
-## 🔄 Quy trình Ingest Refinery-v6.7
+## 🔄 Quy trình Ingest v7.1
 
 ```
 1. Search & Scan     → Quét /raw tìm quặng thô
