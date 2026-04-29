@@ -1,11 +1,18 @@
 ---
 name: master-brain-management
-description: Quy trình Sentinel v7.1 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến. Dùng khi harvest tri thức từ project, tạo atomic note, kiểm tra sức khỏe wiki, hoặc chạy ingest pipeline.
+description: Quy trình Sentinel v7.2 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến. Dùng khi harvest tri thức từ project, tạo atomic note, kiểm tra sức khỏe wiki, hoặc chạy ingest pipeline.
 ---
 
-# Master Brain Management (Sentinel v7.1)
+# Master Brain Management (Sentinel v7.2)
+
+> changelog:
+>
+> - v7.1: Initial Sentinel standard. Atomic note rules, Harvest law, Ingest pipeline.
+> - v7.2: Add step 0 Verify (ls before read_file); add Mandatory Sync Contract; clarify done criteria.
 
 Mục tiêu tối thượng: **Triệt tiêu Slop**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
+
+---
 
 ## 🧱 Quy chuẩn Atomic Note (BẮT BUỘC)
 
@@ -25,6 +32,8 @@ summary: "Ghi chú về AI"
 summary: "Tổng hợp nội dung bài đọc"
 ```
 
+---
+
 ## 🦅 Thiết luật Harvest (Project Management)
 
 Mọi tri thức từ dự án thực tế PHẢI tuân thủ:
@@ -32,6 +41,8 @@ Mọi tri thức từ dự án thực tế PHẢI tuân thủ:
 1. **Project MOC**: Tạo `[Project Name] MOC.md` trong `/MOCs` với tag `#projects` và `#moc`.
 2. **Internal Linking**: Project MOC phải link tới `/Projects/[Project Name].md`.
 3. **Cross-Linking**: Project MOC phải link tới Concepts/Tools dùng chung đã có.
+
+---
 
 ## 🛠️ Phân khu Tri thức (LLM_Wiki/)
 
@@ -41,6 +52,8 @@ Mọi tri thức từ dự án thực tế PHẢI tuân thủ:
 | `/Tools`    | Scripts, CLI, Snippets    | What & Code     |
 | `/Projects` | Bối cảnh dự án thực tế    | Where & Context |
 | `/MOCs`     | Bản đồ truy cập trung tâm | The Map         |
+
+---
 
 ## 🛠️ Hạ tầng & Cấu hình
 
@@ -72,14 +85,20 @@ Script sẽ exit với lỗi rõ ràng nếu thiếu:
 - `.agent/VERSION` tồn tại
 - `LLM_Wiki/` và `LLM_Wiki/MOCs/` tồn tại
 
-## 🔄 Quy trình Ingest v7.1
+---
+
+## 🔄 Quy trình Ingest v7.2
 
 ```
-1. Search & Scan     → Quét /raw tìm quặng thô
-2. Deconstruct       → Dùng mẫu tại LLM_Wiki/Tools/Note Templates.md
-3. Graph Linking     → Kết nối vào MOC + note liên quan
-4. Run Script        → bash ingest-memory.sh
-5. Healer Review     → Đọc Wiki Health MOC, fix các lỗi được flag
+0. Verify        → Run `ls` or `list_dir` to confirm target files exist before
+                   any `read_file`. If Index is out of sync with reality, run
+                   ingest immediately to reconcile before proceeding.
+                   Never guess paths — verify first.
+1. Search & Scan → Quét /raw tìm quặng thô
+2. Deconstruct   → Dùng mẫu tại LLM_Wiki/Tools/Note Templates.md
+3. Graph Linking → Kết nối vào MOC + note liên quan
+4. Run Script    → bash ingest-memory.sh
+5. Healer Review → Đọc Wiki Health MOC, fix các lỗi được flag
 ```
 
 **Done criteria (bước 5):** Script hoàn thành khi không còn:
@@ -87,6 +106,13 @@ Script sẽ exit với lỗi rõ ràng nếu thiếu:
 - Orphan note (MOC Missing)
 - Broken link (trừ Draft/Planned được ignore)
 - Note vi phạm Atomic (> line limit, không phải reference/archived)
+
+**Mandatory Sync Contract:**
+Every write or edit to `LLM_Wiki/` is considered incomplete until `ingest-memory.sh`
+has been executed successfully. The agent must not declare a task complete before
+this step. If the script fails, report the error and halt — do not mark done.
+
+---
 
 ## ⚠️ Anti-Slop Safeguards
 
@@ -96,10 +122,12 @@ Script sẽ exit với lỗi rõ ràng nếu thiếu:
 - **Không mâu thuẫn**: Note A nói X, Note B nói Y → hợp nhất hoặc sửa đổi.
 
 **Xử lý vi phạm:**
-| Vi phạm | Hành động |
-|---|---|
-| Missing summary | Flag trong Wiki Health MOC, thêm `summary:` trước lần ingest tiếp |
-| Atomic quá dài | Chẻ thành note con, link qua nhau |
-| Broken link | Tạo note stub hoặc xóa link |
-| Orphan note | Link vào MOC phù hợp |
-| Missing `#moc` tag trên MOC | Thêm vào frontmatter `tags:` |
+
+| Vi phạm            | Hành động                                                         |
+| ------------------ | ----------------------------------------------------------------- |
+| Missing summary    | Flag trong Wiki Health MOC, thêm `summary:` trước lần ingest tiếp |
+| Atomic quá dài     | Chẻ thành note con, link qua nhau                                 |
+| Broken link        | Tạo note stub hoặc xóa link                                       |
+| Orphan note        | Link vào MOC phù hợp                                              |
+| Missing `#moc` tag | Thêm vào frontmatter `tags:`                                      |
+| Ingest chưa chạy   | Không được tuyên bố task hoàn thành — chạy script trước           |

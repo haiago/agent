@@ -11,6 +11,7 @@ trigger: always_on
 > - 2026-04-28: Fix stale model alias, clarify task allocation, add Deep Think triggers, add ingest fallback, add versioning policy, add Wiki Health enforcement tiers.
 > - 2026-04-29: Add execution discipline (Env First, Clean Root), add Grounding Over Creation rule.
 > - 2026-04-29: Normalize language to English throughout; replace "S-Tier" label with "Required"; resolve P0 label collision; restore full changelog history.
+> - 2026-04-29: Add Strict Grounding rule to Execution Discipline — verify paths before read_file, reconcile Index on mismatch.
 
 ---
 
@@ -72,6 +73,7 @@ trigger: always_on
 - **Execution Discipline (Required):**
   - **Env First:** Before running any ingest or harvest operation, the agent must `read_file` and `source brain.env` to confirm `MASTER_BRAIN_ROOT` is correctly resolved.
   - **Clean Root before Ingest:** Only run the ingest script after confirming `LLM_Wiki/` contains no junk files (empty files, misplaced files). Agent must move or remove these automatically before proceeding.
+  - **Strict Grounding (Required):** Never guess file paths. Before any `read_file` on a note from Index, run `ls` or `list_dir` to confirm the file exists. If Index is out of sync with reality, report immediately and run `ingest-memory.sh` to reconcile before proceeding.
 
 - **Fallback if script is missing:** Log a warning, then perform ingest manually following the steps documented in `LLM_Wiki/MOCs/Ingest Protocol MOC.md`.
 
