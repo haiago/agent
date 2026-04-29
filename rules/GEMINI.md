@@ -5,8 +5,12 @@ trigger: always_on
 # GEMINI.md — Shared Brain Governance
 
 > Priority: P0 governance. Project-specific execution rules should live outside this shared brain layer.
-> last_updated: 2026-04-28
-> changelog: Fix stale model alias, clarify task allocation, add Deep Think trigger conditions, add ingest fallback, add versioning policy, add Wiki Health enforcement mechanism.
+>
+> changelog:
+>
+> - 2026-04-28: Fix stale model alias, clarify task allocation, add Deep Think triggers, add ingest fallback, add versioning policy, add Wiki Health enforcement tiers.
+> - 2026-04-29: Add execution discipline (Env First, Clean Root), add Grounding Over Creation rule.
+> - 2026-04-29: Normalize language to English throughout; replace "S-Tier" label with "Required"; resolve P0 label collision; restore full changelog history.
 
 ---
 
@@ -23,7 +27,7 @@ trigger: always_on
 - **Primary Engine:** Always prioritize the **Gemini series**. Resolve the exact model alias at runtime from `./model-registry.md` — never hardcode a version string in this file.
 - **Review cadence:** Re-evaluate the active model alias at least once per quarter or when a new major version is released.
 
-- **Task Allocation (guidelines, not hard rules — use judgment):**
+- **Task Allocation** (guidelines, not hard rules — use judgment):
   - **Pro tier:** Complex reasoning, architectural design, debugging deep-rooted issues, final code reviews.
   - **Flash tier:** Rapid implementation, mechanical tasks, unit test generation, initial drafts.
   - When in doubt about tier, default to Pro. Speed is secondary to correctness.
@@ -39,7 +43,12 @@ trigger: always_on
 ## Shared Brain Contract
 
 - Treat `LLM_Wiki/` as the shared memory source of truth across projects.
-- Read `LLM_Wiki/index.md` before creating new notes or repeating known context.
+
+- **Grounding Over Creation (Required):** Read `LLM_Wiki/index.md` and relevant MOCs before creating any new note.
+  - Do not create orphan notes or duplicate notes.
+  - If a topic already exists, update and enrich the existing note instead of creating a new one.
+  - Prefer "Reuse" over "New" at all times.
+
 - New notes must be linked into the graph and registered in the correct MOC.
 - Prefer adding a durable knowledge artifact over leaving important reasoning trapped in chat.
 
@@ -47,7 +56,7 @@ trigger: always_on
 
 ## Note Quality Rules
 
-- Every durable note should include frontmatter with at least:
+- Every durable note must include frontmatter with at least:
   - `tags`
   - `summary`
 - Keep notes atomic. If a note exceeds the local atomic limit, split it.
@@ -59,10 +68,18 @@ trigger: always_on
 ## Ingest & Maintenance
 
 - **Canonical entrypoint:** `.agent/skills/master-brain-management/scripts/ingest-memory.sh`
+
+- **Execution Discipline (Required):**
+  - **Env First:** Before running any ingest or harvest operation, the agent must `read_file` and `source brain.env` to confirm `MASTER_BRAIN_ROOT` is correctly resolved.
+  - **Clean Root before Ingest:** Only run the ingest script after confirming `LLM_Wiki/` contains no junk files (empty files, misplaced files). Agent must move or remove these automatically before proceeding.
+
 - **Fallback if script is missing:** Log a warning, then perform ingest manually following the steps documented in `LLM_Wiki/MOCs/Ingest Protocol MOC.md`.
+
 - Resolve brain paths through `MASTER_BRAIN_ROOT` or the script's auto-detected repo root. Do not hardcode machine-specific absolute paths in shared rules or scripts.
+
 - After substantial knowledge updates, regenerate `LLM_Wiki/index.md` and `LLM_Wiki/MOCs/Wiki Health MOC.md`.
-- **Wiki Health enforcement:** Findings from `Wiki Health MOC` are treated as cleanup debt with priority:
+
+- **Wiki Health enforcement:** Findings from `Wiki Health MOC` are treated as cleanup debt:
   - `P1` (broken links, missing frontmatter) → fix before closing the session.
   - `P2` (dead notes, missing MOC registration) → fix within the next 2 ingest cycles.
   - `P3` (style/formatting) → batch and fix opportunistically.
