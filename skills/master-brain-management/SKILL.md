@@ -1,9 +1,9 @@
 ---
 name: master-brain-management
-description: Quy trình Sentinel v7.4 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến. Dùng khi harvest tri thức từ project, tạo atomic note, kiểm tra sức khỏe wiki, hoặc chạy ingest pipeline.
+description: Quy trình Sentinel v7.5 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến. Dùng khi harvest tri thức từ project, tạo atomic note, kiểm tra sức khỏe wiki, hoặc chạy ingest pipeline.
 ---
 
-# Master Brain Management (Sentinel v7.4)
+# Master Brain Management (Sentinel v7.5)
 
 > changelog:
 >
@@ -11,6 +11,7 @@ description: Quy trình Sentinel v7.4 - Ép Agent trích xuất tinh hoa nguyên
 > - v7.2: Add step 0 Verify (ls before read_file); add Mandatory Sync Contract; clarify done criteria.
 > - v7.3: Add Auto-Routing rule (never write to LLM_Wiki/ root); add Footer Required to Atomic Note rules.
 > - v7.4: Add cross-check done criteria (ls Projects/ vs MOC); add structural vs content validation limit note.
+> - v7.5: Add Routing Decision Tree — MOC-first, index as last resort.
 
 Mục tiêu tối thượng: **Triệt tiêu Slop**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
 
@@ -57,6 +58,27 @@ Mọi tri thức từ dự án thực tế PHẢI tuân thủ:
 | `/MOCs`     | Bản đồ truy cập trung tâm | The Map         |
 
 **Root is forbidden:** Never write a note directly to `LLM_Wiki/`. Every note must land in one of the subdirectories above. When in doubt, default to `LLM_Wiki/Projects/`.
+
+---
+
+## 🧭 Routing Decision Tree (SOI Protocol)
+
+Trước khi đọc bất kỳ file nào, agent phải chọn entry point theo thứ tự ưu tiên sau:
+
+```
+1. Biết rõ project (WorkDone, WorkAI, WorkChat, OpenClaw...)?
+   → Đọc thẳng MOCs/[Project] MOC.md
+   → SKIP index.md và Projects MOC.md
+
+2. Biết domain nhưng không rõ project cụ thể?
+   → Đọc MOCs/Projects MOC.md
+   → SKIP index.md
+
+3. Hoàn toàn không rõ domain?
+   → Đọc index.md (last resort only)
+```
+
+**Nguyên tắc:** `index.md` chỉ được đọc khi 2 tầng trên không đủ thông tin. Đọc index cho mọi task = token waste = vi phạm.
 
 ---
 
