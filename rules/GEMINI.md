@@ -12,6 +12,8 @@ trigger: always_on
 > - 2026-04-29: Add execution discipline (Env First, Clean Root), add Grounding Over Creation rule.
 > - 2026-04-29: Normalize language to English throughout; replace "S-Tier" label with "Required"; resolve P0 label collision; restore full changelog history.
 > - 2026-04-29: Add Strict Grounding rule to Execution Discipline — verify paths before read_file, reconcile Index on mismatch.
+> - 2026-04-30: Add Workspace Boundary Awareness — shell fallback for cross-boundary paths is correct behavior, not a workaround.
+> - 2026-04-30: Add Notifications (Ping Đại Ca) section; move before Scope Boundary.
 
 ---
 
@@ -74,6 +76,7 @@ trigger: always_on
   - **Env First:** Before running any ingest or harvest operation, the agent must `read_file` and `source brain.env` to confirm `MASTER_BRAIN_ROOT` is correctly resolved.
   - **Clean Root before Ingest:** Only run the ingest script after confirming `LLM_Wiki/` contains no junk files (empty files, misplaced files). Agent must move or remove these automatically before proceeding.
   - **Strict Grounding (Required):** Never guess file paths. Before any `read_file` on a note from Index, run `ls` or `list_dir` to confirm the file exists. If Index is out of sync with reality, report immediately and run `ingest-memory.sh` to reconcile before proceeding.
+  - **Workspace Boundary Awareness:** Native file tools (`read_file`, `list_dir`) are sandboxed to the current workspace. For paths outside the workspace (e.g., `MASTER_BRAIN_ROOT` on a different absolute path), use `run_shell_command` (`ls`, `cat`, `bash`) instead. This is not a workaround — it is the correct execution path for cross-boundary operations.
 
 - **Fallback if script is missing:** Log a warning, then perform ingest manually following the steps documented in `LLM_Wiki/MOCs/Ingest Protocol MOC.md`.
 
@@ -96,12 +99,6 @@ trigger: always_on
 
 ---
 
-## Scope Boundary
-
-- Shared brain governance defines how agents read, write, and maintain memory.
-- Build commands, test commands, package-manager commands, and runtime-specific workflows belong to project execution rules, not this file.
-- If a project needs stricter execution policy, define it in the consuming repo so the shared submodule stays portable.
-
 ## Notifications (Ping Đại Ca)
 
 - **Always Ping on Stop/Complete (Required):** Whenever you finish a task, or whenever you stop to wait for the user's confirmation (e.g., after presenting a plan, needing approval, or hitting a roadblock), you MUST run the notification script to ping the user.
@@ -109,3 +106,9 @@ trigger: always_on
 - **Tone:** Keep the message short, witty, and in character (e.g., "Ê đại ca, check plan cho tui nè", "Xong task rồi, đại ca vào nghiệm thu!", "Có biến rồi đại ca, vô cứu tui!").
 
 ---
+
+## Scope Boundary
+
+- Shared brain governance defines how agents read, write, and maintain memory.
+- Build commands, test commands, package-manager commands, and runtime-specific workflows belong to project execution rules, not this file.
+- If a project needs stricter execution policy, define it in the consuming repo so the shared submodule stays portable.
