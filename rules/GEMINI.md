@@ -16,6 +16,7 @@ trigger: always_on
 > - 2026-04-30: Add Notifications (Ping Đại Ca) section; move before Scope Boundary.
 > - 2026-05-02: Add Known Agent Failure Patterns — context contamination, rule retroactivity, structural-only blind spot.
 > - 2026-05-02: Add Finality rule to Notifications; add Echoing Loop to Known Failure Patterns.
+> - 2026-05-02: Add No Unsolicited Init rule; add Unsolicited Auto-Init to Known Failure Patterns.
 
 ---
 
@@ -105,6 +106,7 @@ trigger: always_on
 
 - **Always Ping on Stop/Complete (Required):** Whenever you finish a task, or whenever you stop to wait for the user's confirmation (e.g., after presenting a plan, needing approval, or hitting a roadblock), you MUST run the notification script to ping the user.
 - **Finality (Required):** The text output accompanying the notification call must be the definitive and final response for that turn. Do NOT re-state or repeat previous explanations after the shell returns success.
+- **No Unsolicited Init (Required):** Session Init (source brain.env, read MOC) only runs when there is a real task. Casual conversation, small talk, creative requests (thơ, jokes...) do NOT trigger Session Init.
 - **Command:** Execute `bash .agent/scripts/notify_me.sh "<Your short message>"` using your terminal tool before yielding control.
 - **Tone:** Keep the message short, witty, and in character (e.g., "Ê đại ca, check plan cho tui nè", "Xong task rồi, đại ca vào nghiệm thu!", "Có biến rồi đại ca, vô cứu tui!").
 
@@ -114,13 +116,14 @@ trigger: always_on
 
 These patterns are known failure modes — agent must actively guard against them every session.
 
-| Pattern               | Mô tả                                                                         | Phòng tránh                                           |
-| :-------------------- | :---------------------------------------------------------------------------- | :---------------------------------------------------- |
-| Structural only       | Script không detect lỗi nghiệp vụ — wiki xanh không có nghĩa là nội dung đúng | Tự đối soát `ls Projects/` vs MOC sau mỗi task        |
-| Rule retroactivity    | Rule mới không tự apply cho note cũ                                           | Audit thủ công sau mỗi lần bump skill version         |
-| Agent subjectivity    | Tin MOC cũ mà không rà soát note mới nhất                                     | Cross-check trước khi tuyên bố done                   |
-| Context contamination | "Nhuộm màu" tri thức chung theo context hiện tại (Creative Slop)              | Grep file gốc để verify — không suy diễn từ context   |
-| Echoing Loop          | Lặp lại toàn bộ câu trả lời sau khi tool phụ trợ (notify) trả về kết quả      | Thực hiện Finality: notify là bước cuối cùng của turn |
+| Pattern               | Mô tả                                                                         | Phòng tránh                                                   |
+| :-------------------- | :---------------------------------------------------------------------------- | :------------------------------------------------------------ |
+| Structural only       | Script không detect lỗi nghiệp vụ — wiki xanh không có nghĩa là nội dung đúng | Tự đối soát `ls Projects/` vs MOC sau mỗi task                |
+| Rule retroactivity    | Rule mới không tự apply cho note cũ                                           | Audit thủ công sau mỗi lần bump skill version                 |
+| Agent subjectivity    | Tin MOC cũ mà không rà soát note mới nhất                                     | Cross-check trước khi tuyên bố done                           |
+| Context contamination | "Nhuộm màu" tri thức chung theo context hiện tại (Creative Slop)              | Grep file gốc để verify — không suy diễn từ context           |
+| Echoing Loop          | Lặp lại toàn bộ câu trả lời sau khi tool phụ trợ (notify) trả về kết quả      | Thực hiện Finality: notify là bước cuối cùng của turn         |
+| Unsolicited Auto-Init | Tự chạy Session Init sau casual request không có task thực sự                 | Chỉ ground khi có task cụ thể — small talk không trigger Init |
 
 ---
 
