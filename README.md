@@ -1,62 +1,46 @@
-# 🛠️ Agent Superpowers & Shared Governance (v5.x)
+# 🛠️ Agent Superpowers & Shared Governance (v7.3)
 
-Thư mục này là "trung tâm điều khiển" chứa toàn bộ kỹ năng (skills), quy tắc (rules), và công cụ quản trị dành cho các AI Agent (Gemini CLI, Claude Code, Cursor, v.v.).
+Thư mục này là "trung tâm điều hành" (Central Control Hub) chứa toàn bộ kỹ năng (skills), quy tắc (rules), và hạ tầng quản trị dành cho các AI Agent trong hệ sinh thái của Đại Ca.
 
-Đây là một submodule được thiết kế để dùng chung (shared) giữa nhiều dự án, giúp duy trì sự nhất quán trong cách Agent suy nghĩ, làm việc và tương tác với bộ não tri thức (**Master Brain**).
+Đây là một submodule được thiết kế để dùng chung (shared) giữa nhiều dự án, giúp duy trì sự nhất quán trong "nhân cách" và workflow thực chiến của Agent.
 
-## 📂 Cấu trúc chính
+## 📂 Cấu trúc Core
 
-- **`rules/`**: Định nghĩa "nhân cách" và quy tắc ứng xử cốt lõi (`PERSONALITY.md`, `GEMINI.md`). Đây là nơi thiết lập các mandate về bảo mật, phong cách code và quản trị bộ não.
-- **`skills/`**: Thư viện kỹ năng thực chiến.
-  - `master-brain-management`: Quy trình luyện hóa tri thức, ingest memory.
-  - `test-driven-development`: Quy trình RED-GREEN-REFACTOR bắt buộc.
-  - `brainstorming`: Thiết kế hệ thống thông qua hỏi đáp Socratic.
-  - `systematic-debugging`: Quy trình 4 bước truy tìm root cause.
-- **`scripts/`**: Các công cụ bảo trì.
-  - `setup-agent.sh`: Cài đặt nhanh môi trường.
-  - `ingest-memory.sh`: (Nằm trong skill master-brain) Dùng để cập nhật `LLM_Wiki`.
-- **`agents/`**: Định nghĩa các chuyên gia (Sub-agents) như `code-reviewer`.
+- **`rules/`**: Định nghĩa bản sắc và kỷ luật vận hành cốt lõi.
+  - `PERSONALITY.md`: Linh hồn Senior Engineer "Lão Ní" v7.3.
+  - `GEMINI.md`: Hiến pháp Master Brain (Grounding, Ingest, Boundary Awareness).
+- **`skills/`**: Thư viện kỹ năng chuyên biệt hóa.
+  - `master-brain-management`: Hệ thống quản trị tri thức Zettelkasten (Sentinel v7.3).
+  - `app-builder`: Orchestrator xây dựng ứng dụng full-stack.
+  - `architecture`: Khung ra quyết định và thiết kế hệ thống.
+  - `intelligent-routing`: Tự động điều phối Agent và Skill.
+- **`scripts/`**: Công cụ hỗ trợ & Automation.
+  - `notify_me.sh`: Script "Hú Đại Ca" qua Telegram (Mandatory Ping).
+  - `ingest-memory.sh`: Trái tim của Master Brain, đồng bộ hóa tri thức.
 
-## 🚀 Cách sử dụng
+## ⚖️ Kỷ luật Thực chiến (Required Discipline)
 
-### 1. Đối với Gemini CLI
-Hệ thống sẽ tự động nhận diện các skill trong thư mục này. Để kích hoạt một kỹ năng cụ thể:
-```text
-activate_skill(name="master-brain-management")
-```
-Hoặc đơn giản là yêu cầu Agent thực hiện nhiệm vụ liên quan (ví dụ: "ingest memory"), Agent sẽ tự động tìm skill phù hợp thông qua `intelligent-routing`.
+Để làm việc với Đại Ca, mọi Agent phải tuân thủ tuyệt đối các "tâm pháp" sau:
 
-### 2. Đối với Claude Code
-Cài đặt như một plugin:
-```bash
-/plugin install superpowers@superpowers-marketplace
-```
+1.  **Grounding First**: Phải `read_file` hoặc `ls` xác minh thực tế trước khi khẳng định bất cứ điều gì. Cấm đoán mò.
+2.  **Mandatory Ping**: Phải chạy `notify_me.sh` để báo cáo ngay sau khi hoàn thành task hoặc khi cần ý kiến đại ca.
+3.  **Workspace Boundary Awareness**: Nhận diện ranh giới sandbox. Sử dụng shell command (`ls`, `cat`) thay vì native tools cho các đường dẫn ngoài workspace.
+4.  **Triệt tiêu Slop**: Không viết code rác, không comment thừa, không giải thích vòng vo.
 
-### 3. Tích hợp vào dự án mới (Submodule)
-Để dùng bộ rules và skills này cho một project khác:
-```bash
-git submodule add <url-repo-mybrain> .agent
-```
-Sau đó cấu hình `GEMINI.md` của project đó để trỏ về shared rules trong `.agent/rules/`.
+## 🧠 Master Brain Management (v7.3)
 
-## 🧠 Master Brain Ingest Workflow
+Quy trình bảo trì bộ não tri thức (`LLM_Wiki`) đã được nâng cấp lên chuẩn Sentinel v7.3:
 
-Đây là tính năng quan trọng nhất để bảo trì tri thức. Khi có thông tin mới cần "luyện hóa" vào `LLM_Wiki`, hãy chạy:
+- **Root is Forbidden**: Tuyệt đối không tạo note trực tiếp tại root `LLM_Wiki/`. Mọi note phải nằm trong `/Projects`, `/Concepts`, `/MOCs`, v.v.
+- **Footer Required**: Mọi note kết thúc bằng `[[index]] | [[Tên MOC]]` để đảm bảo tính kết nối của đồ thị tri thức.
+- **Sync Contract**: Task chỉ được coi là hoàn thành sau khi chạy `ingest-memory.sh` và đạt 100% sức khỏe (Wiki Health).
+
+## 🚀 Triển khai vào Dự án mới
 
 ```bash
-bash .agent/skills/master-brain-management/scripts/ingest-memory.sh
+git submodule add https://github.com/haiago/agent.git .agent
+cp .agent/brain.env.example brain.env # Sau đó điền TOKEN Telegram
 ```
-
-Quy trình này sẽ:
-1. Tổng hợp các note từ `raw/`.
-2. Kiểm tra tính atomic và broken links.
-3. Cập nhật `LLM_Wiki/index.md` và `Wiki Health MOC`.
-
-## 📜 Triết lý làm việc
-
-- **Grounding First**: Luôn đọc file/tra cứu tri thức trước khi trả lời.
-- **TDD Mandatory**: Không có test = không có code hoàn tất.
-- **Evidence over Claims**: Xác minh kết quả bằng lệnh thực tế, không hứa suông.
 
 ---
-*Duy trì bởi Lão Ní & Đội ngũ Sentinel.*
+*Được rèn giũa bởi Lão Ní & Đội ngũ Sentinel v7.3.*
