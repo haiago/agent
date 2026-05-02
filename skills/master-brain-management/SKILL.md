@@ -1,15 +1,16 @@
 ---
 name: master-brain-management
-description: Quy trình Sentinel v7.3 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến. Dùng khi harvest tri thức từ project, tạo atomic note, kiểm tra sức khỏe wiki, hoặc chạy ingest pipeline.
+description: Quy trình Sentinel v7.4 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến. Dùng khi harvest tri thức từ project, tạo atomic note, kiểm tra sức khỏe wiki, hoặc chạy ingest pipeline.
 ---
 
-# Master Brain Management (Sentinel v7.3)
+# Master Brain Management (Sentinel v7.4)
 
 > changelog:
 >
 > - v7.1: Initial Sentinel standard. Atomic note rules, Harvest law, Ingest pipeline.
 > - v7.2: Add step 0 Verify (ls before read_file); add Mandatory Sync Contract; clarify done criteria.
 > - v7.3: Add Auto-Routing rule (never write to LLM_Wiki/ root); add Footer Required to Atomic Note rules.
+> - v7.4: Add cross-check done criteria (ls Projects/ vs MOC); add structural vs content validation limit note.
 
 Mục tiêu tối thượng: **Triệt tiêu Slop**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
 
@@ -114,6 +115,9 @@ Script sẽ exit với lỗi rõ ràng nếu thiếu:
 - Note vi phạm Atomic (> line limit, không phải reference/archived)
 - Note nằm sai vị trí (root `LLM_Wiki/` thay vì subfolder)
 - Note thiếu footer `[[index]] | [[Tên MOC]]`
+- Mismatch giữa `ls LLM_Wiki/Projects/` và danh sách trong Project MOC — mọi file trong Projects/ phải có entry trong MOC tương ứng.
+
+> **Validation Limit:** Script chỉ validate cấu trúc (link, summary, orphan). Lỗi nội dung nghiệp vụ (thiếu nhật ký, note chưa cập nhật) không được detect tự động — Agent phải tự đối soát thủ công trước khi tuyên bố done.
 
 **Mandatory Sync Contract:**
 Every write or edit to `LLM_Wiki/` is considered incomplete until `ingest-memory.sh`
