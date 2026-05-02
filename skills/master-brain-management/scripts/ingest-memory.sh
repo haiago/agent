@@ -186,10 +186,9 @@ MANIFEST_FILE="$MASTER_BRAIN_ROOT/.version-sync-manifest"
 
 if [ -f "$MANIFEST_FILE" ]; then
     while read -r rel_path || [ -n "$rel_path" ]; do
-        # Bỏ qua comment và dòng trống
         [[ "$rel_path" =~ ^#.* ]] && continue
         [[ -z "$rel_path" ]] && continue
-        
+
         target_file="$MASTER_BRAIN_ROOT/$rel_path"
         if [ -f "$target_file" ]; then
             safe_replace_version "$target_file"
@@ -199,7 +198,6 @@ if [ -f "$MANIFEST_FILE" ]; then
     done < "$MANIFEST_FILE"
 else
     log_warn "  ⚠️ Không tìm thấy .version-sync-manifest tại $MANIFEST_FILE. Sử dụng default sync..."
-    # Fallback nếu không có manifest
     files_to_sync=(
         "$MASTER_BRAIN_ROOT/GEMINI.md"
         "$MASTER_BRAIN_ROOT/.agent/rules/GEMINI.md"
@@ -273,7 +271,6 @@ while read -r note; do
         LONG_NOTE_COUNT=$((LONG_NOTE_COUNT + 1))
     fi
 
-    # Kiểm tra note có được link từ ít nhất 1 MOC không
     is_in_moc=0
     while read -r moc_file; do
         if grep -qF "[[${basename}]]" "$moc_file" 2>/dev/null; then
@@ -288,7 +285,6 @@ while read -r note; do
         MOC_MISSING_COUNT=$((MOC_MISSING_COUNT + 1))
     fi
 
-    # Kiểm tra Tag Mandatory cho MOCs
     if [[ "$note" == *"/MOCs/"* ]]; then
         tags="$(frontmatter_value "$note" "tags" || true)"
         if [[ "$tags" != *"moc"* ]]; then
@@ -343,6 +339,16 @@ cat >> "$HEALTH_FILE" <<EOF
 - **Thiếu Summary**: $MISSING_SUMMARY_COUNT
 - **Link gãy**: $BROKEN_LINK_COUNT
 - **Vi phạm Atomic**: $LONG_NOTE_COUNT
+
+---
+
+## ⚠️ Known Validation Limits
+
+| Giới hạn | Mô tả | Workaround |
+| :--- | :--- | :--- |
+| Structural only | Script chỉ validate link/summary/orphan — không detect thiếu nhật ký nghiệp vụ | Agent tự đối soát \`ls Projects/\` vs MOC sau mỗi task |
+| Rule retroactivity | Rule mới (e.g., footer v7.3) không tự apply cho note cũ | Audit thủ công sau mỗi lần bump skill version |
+| Agent subjectivity | Agent có thể tin MOC cũ mà không rà soát note mới nhất | Grounding bắt buộc: cross-check trước khi tuyên bố done |
 EOF
 
 echo "---------------------------------------------------------------"
