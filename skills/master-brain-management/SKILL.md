@@ -1,9 +1,9 @@
 ---
 name: master-brain-management
-description: Quy trình Sentinel v7.5 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến. Dùng khi harvest tri thức từ project, tạo atomic note, kiểm tra sức khỏe wiki, hoặc chạy ingest pipeline.
+description: Quy trình Sentinel v7.6 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến. Dùng khi harvest tri thức từ project, tạo atomic note, kiểm tra sức khỏe wiki, hoặc chạy ingest pipeline.
 ---
 
-# Master Brain Management (Sentinel v7.5)
+# Master Brain Management (Sentinel v7.6)
 
 > changelog:
 >
@@ -12,6 +12,7 @@ description: Quy trình Sentinel v7.5 - Ép Agent trích xuất tinh hoa nguyên
 > - v7.3: Add Auto-Routing rule (never write to LLM_Wiki/ root); add Footer Required to Atomic Note rules.
 > - v7.4: Add cross-check done criteria (ls Projects/ vs MOC); add structural vs content validation limit note.
 > - v7.5: Add Routing Decision Tree — MOC-first, index as last resort.
+> - v7.6: Add token optimization (grep-first, head before cat, find over ls); add shell quoting rule.
 
 Mục tiêu tối thượng: **Triệt tiêu Slop**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
 
@@ -79,6 +80,24 @@ Trước khi đọc bất kỳ file nào, agent phải chọn entry point theo t
 ```
 
 **Nguyên tắc:** `index.md` chỉ được đọc khi 2 tầng trên không đủ thông tin. Đọc index cho mọi task = token waste = vi phạm.
+
+**Token Optimization (Required):**
+
+```bash
+# Ưu tiên grep thay vì cat toàn file — tiết kiệm 70-80% token
+grep -n "keyword" "$MASTER_BRAIN_ROOT/LLM_Wiki/MOCs/WorkDone MOC.md"
+
+# Dùng head để đọc metadata trước, full content sau nếu cần
+head -n 20 "$MASTER_BRAIN_ROOT/LLM_Wiki/MOCs/WorkDone MOC.md"
+
+# Tìm file không cần ls trước
+find "$MASTER_BRAIN_ROOT/LLM_Wiki" -name "*ProjectName*"
+
+# ls MOCs/ một lần duy nhất per session — không ls lại cùng thư mục
+ls "$MASTER_BRAIN_ROOT/LLM_Wiki/MOCs/"
+```
+
+**Shell quoting bắt buộc** — luôn bao path trong dấu nháy kép. `[]` không escape = shell pattern = lỗi "No such file".
 
 ---
 
