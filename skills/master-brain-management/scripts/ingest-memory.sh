@@ -349,6 +349,7 @@ cat >> "$HEALTH_FILE" <<EOF
 | Structural only | Script chỉ validate link/summary/orphan — không detect thiếu nhật ký nghiệp vụ | Agent tự đối soát \`ls Projects/\` vs MOC sau mỗi task |
 | Rule retroactivity | Rule mới (e.g., footer v7.3) không tự apply cho note cũ | Audit thủ công sau mỗi lần bump skill version |
 | Agent subjectivity | Agent có thể tin MOC cũ mà không rà soát note mới nhất | Grounding bắt buộc: cross-check trước khi tuyên bố done |
+| Context contamination | Agent "nhuộm màu" tri thức chung theo context hiện tại (Creative Slop) | Grep file gốc để verify nội dung trước khi báo cáo — không suy diễn từ context |
 EOF
 
 echo "---------------------------------------------------------------"
