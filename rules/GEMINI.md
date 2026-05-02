@@ -14,6 +14,7 @@ trigger: always_on
 > - 2026-04-29: Add Strict Grounding rule to Execution Discipline — verify paths before read_file, reconcile Index on mismatch.
 > - 2026-04-30: Add Workspace Boundary Awareness — shell fallback for cross-boundary paths is correct behavior, not a workaround.
 > - 2026-04-30: Add Notifications (Ping Đại Ca) section; move before Scope Boundary.
+> - 2026-05-02: Add Known Agent Failure Patterns — context contamination, rule retroactivity, structural-only blind spot.
 
 ---
 
@@ -104,6 +105,19 @@ trigger: always_on
 - **Always Ping on Stop/Complete (Required):** Whenever you finish a task, or whenever you stop to wait for the user's confirmation (e.g., after presenting a plan, needing approval, or hitting a roadblock), you MUST run the notification script to ping the user.
 - **Command:** Execute `bash .agent/scripts/notify_me.sh "<Your short message>"` using your terminal tool before yielding control.
 - **Tone:** Keep the message short, witty, and in character (e.g., "Ê đại ca, check plan cho tui nè", "Xong task rồi, đại ca vào nghiệm thu!", "Có biến rồi đại ca, vô cứu tui!").
+
+---
+
+## Known Agent Failure Patterns
+
+These patterns are known failure modes — agent must actively guard against them every session.
+
+| Pattern               | Mô tả                                                                         | Phòng tránh                                         |
+| :-------------------- | :---------------------------------------------------------------------------- | :-------------------------------------------------- |
+| Structural only       | Script không detect lỗi nghiệp vụ — wiki xanh không có nghĩa là nội dung đúng | Tự đối soát `ls Projects/` vs MOC sau mỗi task      |
+| Rule retroactivity    | Rule mới không tự apply cho note cũ                                           | Audit thủ công sau mỗi lần bump skill version       |
+| Agent subjectivity    | Tin MOC cũ mà không rà soát note mới nhất                                     | Cross-check trước khi tuyên bố done                 |
+| Context contamination | "Nhuộm màu" tri thức chung theo context hiện tại (Creative Slop)              | Grep file gốc để verify — không suy diễn từ context |
 
 ---
 
