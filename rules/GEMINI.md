@@ -101,3 +101,11 @@ trigger: always_on
 - Shared brain governance defines how agents read, write, and maintain memory.
 - Build commands, test commands, package-manager commands, and runtime-specific workflows belong to project execution rules, not this file.
 - If a project needs stricter execution policy, define it in the consuming repo so the shared submodule stays portable.
+
+## Notifications (Ping Đại Ca)
+
+- **Always Ping on Stop/Complete (Required):** Whenever you finish a task, or whenever you stop to wait for the user's confirmation (e.g., after presenting a plan, needing approval, or hitting a roadblock), you MUST run the notification script to ping the user.
+- **Command:** Execute `bash .agent/scripts/notify_me.sh "<Your short message>"` using your terminal tool before yielding control.
+- **Tone:** Keep the message short, witty, and in character (e.g., "Ê đại ca, check plan cho tui nè", "Xong task rồi, đại ca vào nghiệm thu!", "Có biến rồi đại ca, vô cứu tui!").
+
+---
