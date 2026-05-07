@@ -1,9 +1,9 @@
 ---
 name: master-brain-management
-description: Quy trình Sentinel v7.6 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến. Dùng khi harvest tri thức từ project, tạo atomic note, kiểm tra sức khỏe wiki, hoặc chạy ingest pipeline.
+description: Quy trình Sentinel v7.7 - Ép Agent trích xuất tinh hoa nguyên tử và bảo trì mạng lưới Zettelkasten thực chiến. Dùng khi harvest tri thức từ project, tạo atomic note, kiểm tra sức khỏe wiki, hoặc chạy ingest pipeline.
 ---
 
-# Master Brain Management (Sentinel v7.6)
+# Master Brain Management (Sentinel v7.7)
 
 > changelog:
 >
@@ -13,6 +13,7 @@ description: Quy trình Sentinel v7.6 - Ép Agent trích xuất tinh hoa nguyên
 > - v7.4: Add cross-check done criteria (ls Projects/ vs MOC); add structural vs content validation limit note.
 > - v7.5: Add Routing Decision Tree — MOC-first, index as last resort.
 > - v7.6: Add token optimization (grep-first, head before cat, find over ls); add shell quoting rule.
+> - v7.7: Add Harvest Law — Status Declaration, File Path Grounding, When/Not-when (per Codex brain eval).
 
 Mục tiêu tối thượng: **Triệt tiêu Slop**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
 
@@ -46,6 +47,18 @@ Mọi tri thức từ dự án thực tế PHẢI tuân thủ:
 1. **Project MOC**: Tạo `[Project Name] MOC.md` trong `/MOCs` với tag `#projects` và `#moc`.
 2. **Internal Linking**: Project MOC phải link tới `/Projects/[Project Name].md`.
 3. **Cross-Linking**: Project MOC phải link tới Concepts/Tools dùng chung đã có.
+4. **Status Declaration (Required)**: Khi harvest bất kỳ pattern/decision nào, agent PHẢI khai báo `status:` trong frontmatter. **Cấm để trống.**
+   - Pattern đang dùng trong codebase → `status: current`
+   - Đã refactor/thay thế → `status: superseded` + ghi `superseded_by: [[...]]`
+   - Chưa verify với code thật → `status: draft`
+   - AI đọc note `superseded` mà không thấy `superseded_by` = **lỗi**.
+5. **File Path Grounding (Required)**: Mọi Project note PHẢI có section `## 📁 File Paths` với ít nhất 1 path thật đã verify.
+   - Dùng `ls` hoặc `find` để confirm path tồn tại trước khi ghi vào note.
+   - **Cấm** ghi chung chung như `trong modules/` hoặc `ở Root Container` — phải là path đầy đủ từ `src/`.
+   - File path không cần cover 100% — chỉ cần đủ để agent mở đúng file mà không phải grep thêm.
+6. **When/Not-when (Required)**: Mọi Project note PHẢI có section `## 🎯 When to use / When NOT to use`.
+   - Ít nhất 1 điều kiện `Dùng khi:` và 1 điều kiện `Không dùng khi:`.
+   - Thiếu = note chưa hoàn thiện, flag vào Wiki Health.
 
 ---
 
@@ -133,20 +146,28 @@ Script sẽ exit với lỗi rõ ràng nếu thiếu:
 
 ---
 
-## 🔄 Quy trình Ingest v7.3
+## 🔄 Quy trình Ingest v7.7
 
 ```
-0. Verify        → Run `ls` or `list_dir` to confirm target files exist before
-                   any `read_file`. If Index is out of sync with reality, run
-                   ingest immediately to reconcile before proceeding.
-                   Never guess paths — verify first.
-1. Search & Scan → Quét /raw tìm quặng thô. Chạy `ls -R LLM_Wiki/` và kiểm tra
-                   Project MOC để xác định đúng target path trước khi tạo note.
-                   Default path cho project notes: LLM_Wiki/Projects/
-2. Deconstruct   → Dùng mẫu tại LLM_Wiki/Tools/Note Templates.md
-3. Graph Linking → Kết nối vào MOC + note liên quan
-4. Run Script    → bash ingest-memory.sh
-5. Healer Review → Đọc Wiki Health MOC, fix các lỗi được flag
+0. Verify           → Run `ls` or `list_dir` to confirm target files exist before
+                      any `read_file`. If Index is out of sync with reality, run
+                      ingest immediately to reconcile before proceeding.
+                      Never guess paths — verify first.
+1. Search & Scan    → Quét /raw tìm quặng thô. Chạy `ls -R LLM_Wiki/` và kiểm tra
+                      Project MOC để xác định đúng target path trước khi tạo note.
+                      Default path cho project notes: LLM_Wiki/Projects/
+1.5. Status Sweep   → Trước khi viết note mới, grep MOC liên quan để tìm note cũ
+                      có cùng topic/pattern. Với mỗi note tìm được:
+                      - Nếu note mới THAY THẾ hoàn toàn → cập nhật note cũ:
+                        status: superseded, superseded_by: [[Tên note mới]], updated: hôm nay
+                      - Nếu note mới là PHIÊN BẢN MỚI HƠN → update status: current
+                        và updated: hôm nay trên note cũ
+                      - Nếu không liên quan → bỏ qua
+                      Bước này đảm bảo brain không có 2 note mâu thuẫn cùng tồn tại.
+2. Deconstruct      → Dùng mẫu tại LLM_Wiki/Tools/Note Templates.md
+3. Graph Linking    → Kết nối vào MOC + note liên quan
+4. Run Script       → bash ingest-memory.sh
+5. Healer Review    → Đọc Wiki Health MOC, fix các lỗi được flag
 ```
 
 **Done criteria (bước 5):** Script hoàn thành khi không còn:
@@ -176,13 +197,17 @@ this step. If the script fails, report the error and halt — do not mark done.
 
 **Xử lý vi phạm:**
 
-| Vi phạm               | Hành động                                                         |
-| --------------------- | ----------------------------------------------------------------- | ------------------------------------------------ |
-| Missing summary       | Flag trong Wiki Health MOC, thêm `summary:` trước lần ingest tiếp |
-| Atomic quá dài        | Chẻ thành note con, link qua nhau                                 |
-| Broken link           | Tạo note stub hoặc xóa link                                       |
-| Orphan note           | Link vào MOC phù hợp                                              |
-| Missing `#moc` tag    | Thêm vào frontmatter `tags:`                                      |
-| Ingest chưa chạy      | Không được tuyên bố task hoàn thành — chạy script trước           |
-| Note ở root LLM_Wiki/ | Move vào đúng subfolder, cập nhật links, chạy lại ingest          |
-| Missing footer        | Thêm `[[index]]                                                   | [[Tên MOC]]` vào cuối note trước lần ingest tiếp |
+| Vi phạm                           | Hành động                                                           |
+| --------------------------------- | ------------------------------------------------------------------- |
+| Missing summary                   | Flag trong Wiki Health MOC, thêm `summary:` trước lần ingest tiếp   |
+| Atomic quá dài                    | Chẻ thành note con, link qua nhau                                   |
+| Broken link                       | Tạo note stub hoặc xóa link                                         |
+| Orphan note                       | Link vào MOC phù hợp                                                |
+| Missing `#moc` tag                | Thêm vào frontmatter `tags:`                                        |
+| Ingest chưa chạy                  | Không được tuyên bố task hoàn thành — chạy script trước             |
+| Note ở root LLM_Wiki/             | Move vào đúng subfolder, cập nhật links, chạy lại ingest            |
+| Missing footer                    | Thêm `[[index]] \| [[Tên MOC]]` vào cuối note trước lần ingest tiếp |
+| Missing status                    | Không được ingest — thêm `status:` vào frontmatter trước            |
+| superseded không có superseded_by | Thêm `superseded_by: [[...]]` vào frontmatter                       |
+| Project note thiếu File Paths     | Thêm section `## 📁 File Paths` với path đã verify                  |
+| Project note thiếu When/Not-when  | Thêm section `## 🎯 When to use` trước khi ingest                   |
