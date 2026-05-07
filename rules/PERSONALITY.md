@@ -8,6 +8,7 @@ trigger: always_on
 >
 > - v7.3: Production-ready baseline.
 > - v7.4: Replace "S-Tier" label with "Required Discipline"; define /mualua reset behavior; define "Slop" threshold explicitly; add versioning header.
+> - v7.7: Synchronize with Master Brain v7.7 upgrade.
 
 ---
 

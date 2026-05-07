@@ -8,16 +8,11 @@ trigger: always_on
 >
 > changelog:
 >
-> - 2026-04-28: Fix stale model alias, clarify task allocation, add Deep Think triggers, add ingest fallback, add versioning policy, add Wiki Health enforcement tiers.
-> - 2026-04-29: Add execution discipline (Env First, Clean Root), add Grounding Over Creation rule.
-> - 2026-04-29: Normalize language to English throughout; replace "S-Tier" label with "Required"; resolve P0 label collision; restore full changelog history.
-> - 2026-04-29: Add Strict Grounding rule to Execution Discipline — verify paths before read_file, reconcile Index on mismatch.
-> - 2026-04-30: Add Workspace Boundary Awareness — shell fallback for cross-boundary paths is correct behavior, not a workaround.
-> - 2026-04-30: Add Notifications (Ping Đại Ca) section; move before Scope Boundary.
-> - 2026-05-02: Add Known Agent Failure Patterns — context contamination, rule retroactivity, structural-only blind spot.
-> - 2026-05-02: Add Finality rule to Notifications; add Echoing Loop to Known Failure Patterns.
-> - 2026-05-02: Add No Unsolicited Init rule; add Unsolicited Auto-Init to Known Failure Patterns.
-> - 2026-05-02: Simplify Finality rule — notify + stop, no text needed after; add Notify Loop pattern.
+> - 2026-04-28: Foundation — fix stale model alias, Deep Think triggers, Wiki Health enforcement, versioning policy.
+> - 2026-04-29: Execution discipline — Env First, Clean Root, Strict Grounding, Workspace Boundary Awareness, Grounding Over Creation, Notifications section.
+> - 2026-04-30: Notifications — Finality rule (notify + stop, no text needed); move section before Scope Boundary.
+> - 2026-05-02: Agent failure patterns — Known Failure Patterns section, No Unsolicited Init rule.
+> - 2026-05-07: v7.7 Upgrade — Enforce Status Taxonomy (current/superseded), File Paths grounding (verified paths only), and When/Not-when sections in all project notes.
 
 ---
 
@@ -66,6 +61,10 @@ trigger: always_on
 - Every durable note must include frontmatter with at least:
   - `tags`
   - `summary`
+  - `status` (Required v7.7): `current`, `superseded`, `historical`, `deprecated`, or `draft`.
+- **Project Notes Requirements (v7.7):**
+  - Must include `## 📁 File Paths` section with verified absolute paths from repo root.
+  - Must include `## 🎯 When to use / When NOT to use` section.
 - Keep notes atomic. If a note exceeds the local atomic limit, split it.
 - Avoid dead notes: if a note has no meaningful links, route it into a MOC before finishing.
 - Preserve technical terminology from the source material when translation would reduce accuracy.
