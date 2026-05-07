@@ -37,21 +37,10 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-log_info() {
-    echo -e "${BLUE}$1${NC}"
-}
-
-log_step() {
-    echo -e "${CYAN}$1${NC}"
-}
-
-log_warn() {
-    echo -e "${YELLOW}$1${NC}"
-}
-
-log_error() {
-    echo -e "${RED}$1${NC}"
-}
+log_info() { echo -e "${BLUE}$1${NC}"; }
+log_step() { echo -e "${CYAN}$1${NC}"; }
+log_warn() { echo -e "${YELLOW}$1${NC}"; }
+log_error() { echo -e "${RED}$1${NC}"; }
 
 frontmatter_value() {
     local file="$1"
@@ -92,13 +81,11 @@ body_summary() {
 note_summary() {
     local file="$1"
     local summary
-
     summary="$(frontmatter_value "$file" "summary" || true)"
     if [ -n "$summary" ]; then
         printf '%s\n' "$summary"
         return
     fi
-
     body_summary "$file"
 }
 
@@ -120,54 +107,39 @@ safe_replace_version() {
 
 note_exists() {
     local link_target="$1"
-
     if [[ "$link_target" == */* ]]; then
         [ -f "$WIKI_DIR/$link_target.md" ] && return 0
     fi
-
     [ -f "$WIKI_DIR/Concepts/$link_target.md" ] && return 0
     [ -f "$WIKI_DIR/Tools/$link_target.md" ] && return 0
     [ -f "$WIKI_DIR/Projects/$link_target.md" ] && return 0
     [ -f "$WIKI_DIR/MOCs/$link_target.md" ] && return 0
     [ -f "$WIKI_DIR/$link_target.md" ] && return 0
-
     return 1
 }
 
 should_ignore_link() {
     local link_target="$1"
     local source_line="$2"
-
     [[ "$link_target" == *"liên quan"* ]] && return 0
     [[ "$link_target" == *"cha"* ]] && return 0
-
     if [ "$MASTER_BRAIN_IGNORE_DRAFT_LINKS" = "1" ]; then
         [[ "$source_line" == *"Pending Harvest"* ]] && return 0
         [[ "$source_line" == *"Draft"* ]] && return 0
         [[ "$source_line" == *"Planned"* ]] && return 0
         [[ "$source_line" == *"TBD"* ]] && return 0
     fi
-
     return 1
 }
 
 project_note_link_target() {
     local note="$1"
     local basename="$2"
-
     case "$note" in
-        "$WIKI_DIR/Concepts/"*)
-            printf '[[%s MOC]]' "$basename"
-            ;;
-        "$WIKI_DIR/Tools/"*)
-            printf '[[Master Brain MOC]]'
-            ;;
-        "$WIKI_DIR/Projects/"*)
-            printf '[[Projects MOC]]'
-            ;;
-        *)
-            printf 'Chưa rõ'
-            ;;
+        "$WIKI_DIR/Concepts/"*) printf '[[%s MOC]]' "$basename" ;;
+        "$WIKI_DIR/Tools/"*)    printf '[[Master Brain MOC]]' ;;
+        "$WIKI_DIR/Projects/"*) printf '[[Projects MOC]]' ;;
+        *)                      printf 'Chưa rõ' ;;
     esac
 }
 
@@ -188,7 +160,6 @@ if [ -f "$MANIFEST_FILE" ]; then
     while read -r rel_path || [ -n "$rel_path" ]; do
         [[ "$rel_path" =~ ^#.* ]] && continue
         [[ -z "$rel_path" ]] && continue
-
         target_file="$MASTER_BRAIN_ROOT/$rel_path"
         if [ -f "$target_file" ]; then
             safe_replace_version "$target_file"
@@ -197,7 +168,7 @@ if [ -f "$MANIFEST_FILE" ]; then
         fi
     done < "$MANIFEST_FILE"
 else
-    log_warn "  ⚠️ Không tìm thấy .version-sync-manifest tại $MANIFEST_FILE. Sử dụng default sync..."
+    log_warn "  ⚠️ Không tìm thấy .version-sync-manifest. Sử dụng default sync..."
     files_to_sync=(
         "$MASTER_BRAIN_ROOT/GEMINI.md"
         "$MASTER_BRAIN_ROOT/.agent/rules/GEMINI.md"
@@ -247,6 +218,9 @@ MOC_MISSING_COUNT=0
 BROKEN_LINK_COUNT=0
 LONG_NOTE_COUNT=0
 MISSING_SUMMARY_COUNT=0
+MISSING_STATUS_COUNT=0
+MISSING_FILE_PATHS_COUNT=0
+MISSING_WHEN_NOT_WHEN_COUNT=0
 TOTAL_NOTES=0
 
 log_step "🩺 Đang chẩn đoán mạng lưới tri thức..."
@@ -269,6 +243,26 @@ while read -r note; do
     if [ "$note_lines" -gt "$MASTER_BRAIN_ATOMIC_LINE_LIMIT" ] && [ "$status" != "reference" ] && [ "$status" != "archived" ]; then
         echo "| ✂️ Atomic Too Long | [[${basename}]] | ${note_lines} dòng > giới hạn ${MASTER_BRAIN_ATOMIC_LINE_LIMIT} |" >> "$HEALTH_FILE"
         LONG_NOTE_COUNT=$((LONG_NOTE_COUNT + 1))
+    fi
+
+    # Check: status field bắt buộc (v7.7)
+    if [ -z "$status" ]; then
+        echo "| 🏷️ Missing Status | [[${basename}]] | Thêm \`status: current\` (hoặc superseded/draft/archived) vào frontmatter |" >> "$HEALTH_FILE"
+        MISSING_STATUS_COUNT=$((MISSING_STATUS_COUNT + 1))
+    fi
+
+    # Check: Project notes phải có section File Paths (v7.7)
+    if [[ "$note" == *"/Projects/"* ]]; then
+        if ! grep -q '## .*File Path' "$note" 2>/dev/null; then
+            echo "| 📁 Missing File Paths | [[${basename}]] | Project note cần section \`## 📁 File Paths\` với path thật đã verify |" >> "$HEALTH_FILE"
+            MISSING_FILE_PATHS_COUNT=$((MISSING_FILE_PATHS_COUNT + 1))
+        fi
+
+        # Check: Project notes phải có section When/Not-when (v7.7)
+        if ! grep -q '## .*When to use' "$note" 2>/dev/null; then
+            echo "| 🎯 Missing When/Not-when | [[${basename}]] | Project note cần section \`## 🎯 When to use / When NOT to use\` |" >> "$HEALTH_FILE"
+            MISSING_WHEN_NOT_WHEN_COUNT=$((MISSING_WHEN_NOT_WHEN_COUNT + 1))
+        fi
     fi
 
     is_in_moc=0
@@ -300,14 +294,9 @@ while read -r note; do
     inside_code=0
     while IFS= read -r line || [ -n "$line" ]; do
         if [[ "$line" == *'```'* ]]; then
-            if [ "$inside_code" -eq 0 ]; then
-                inside_code=1
-            else
-                inside_code=0
-            fi
+            if [ "$inside_code" -eq 0 ]; then inside_code=1; else inside_code=0; fi
             continue
         fi
-
         [ "$inside_code" -eq 1 ] && continue
 
         while [[ "$line" =~ \[\[([^]]+)\]\] ]]; do
@@ -337,6 +326,9 @@ cat >> "$HEALTH_FILE" <<EOF
 - **Tổng số note đã quét**: $TOTAL_NOTES
 - **Thiếu MOC**: $MOC_MISSING_COUNT
 - **Thiếu Summary**: $MISSING_SUMMARY_COUNT
+- **Thiếu Status**: $MISSING_STATUS_COUNT
+- **Project thiếu File Paths**: $MISSING_FILE_PATHS_COUNT
+- **Project thiếu When/Not-when**: $MISSING_WHEN_NOT_WHEN_COUNT
 - **Link gãy**: $BROKEN_LINK_COUNT
 - **Vi phạm Atomic**: $LONG_NOTE_COUNT
 
@@ -346,8 +338,8 @@ cat >> "$HEALTH_FILE" <<EOF
 
 | Giới hạn | Mô tả | Workaround |
 | :--- | :--- | :--- |
-| Structural only | Script chỉ validate link/summary/orphan — không detect thiếu nhật ký nghiệp vụ | Agent tự đối soát \`ls Projects/\` vs MOC sau mỗi task |
-| Rule retroactivity | Rule mới (e.g., footer v7.3) không tự apply cho note cũ | Audit thủ công sau mỗi lần bump skill version |
+| Structural only | Script chỉ validate link/summary/orphan/status/file-paths — không detect thiếu nhật ký nghiệp vụ | Agent tự đối soát \`ls Projects/\` vs MOC sau mỗi task |
+| Rule retroactivity | Rule mới không tự apply cho note cũ — File Paths và Status sẽ flag note cũ legacy | Audit thủ công sau mỗi lần bump skill version |
 | Agent subjectivity | Agent có thể tin MOC cũ mà không rà soát note mới nhất | Grounding bắt buộc: cross-check trước khi tuyên bố done |
 | Context contamination | Agent "nhuộm màu" tri thức chung theo context hiện tại (Creative Slop) | Grep file gốc để verify nội dung trước khi báo cáo — không suy diễn từ context |
 EOF
