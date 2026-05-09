@@ -2,9 +2,9 @@
 trigger: always_on
 ---
 
-# GEMINI.md — Shared Brain Governance
+# GEMINI.md — Gemini Engine Rules
 
-> Priority: P0 engine profile. Shared governance now lives in `SHARED.md`.
+> Priority: P0 engine profile. Shared governance lives in `SHARED.md`.
 >
 > changelog:
 >
@@ -14,6 +14,7 @@ trigger: always_on
 > - 2026-05-02: Agent failure patterns — Known Failure Patterns section, No Unsolicited Init rule.
 > - 2026-05-07: v7.7 Upgrade — Enforce Status Taxonomy (current/superseded), File Paths grounding (verified paths only), and When/Not-when sections in all project notes.
 > - 2026-05-07: Extract shared governance to `SHARED.md`; keep Gemini-specific engine policy only.
+> - 2026-05-07: Clarify bootstrap role: this file now exists only for Gemini-specific engine policy.
 
 ---
 
@@ -32,3 +33,9 @@ trigger: always_on
   - An initial approach has failed or produced contradictory output.
   - The task involves security, data integrity, or irreversible side effects.
   - The user explicitly requests it.
+
+## Gemini Runtime Notes
+
+- Use root `GEMINI.md` as the Gemini bootstrap entrypoint for project instructions.
+- Keep engine-specific rules in this file. Keep shared governance in `SHARED.md`.
+- If a project also supports Codex, treat `CODEX.md` as a sibling engine profile rather than a competing source of truth.
