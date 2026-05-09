@@ -14,6 +14,7 @@ description: Quy trình Sentinel v7.7 - Ép Agent trích xuất tinh hoa nguyên
 > - v7.5: Add Routing Decision Tree — MOC-first, index as last resort.
 > - v7.6: Add token optimization (grep-first, head before cat, find over ls); add shell quoting rule.
 > - v7.7: Add Harvest Law — Status Declaration, File Path Grounding, When/Not-when (per Codex brain eval).
+> - 2026-05-09: Add completion gate for new project notes and MOC enforcement on ingest.
 
 Mục tiêu tối thượng: **Triệt tiêu Slop**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
 
@@ -59,6 +60,11 @@ Mọi tri thức từ dự án thực tế PHẢI tuân thủ:
 6. **When/Not-when (Required)**: Mọi Project note PHẢI có section `## 🎯 When to use / When NOT to use`.
    - Ít nhất 1 điều kiện `Dùng khi:` và 1 điều kiện `Không dùng khi:`.
    - Thiếu = note chưa hoàn thiện, flag vào Wiki Health.
+7. **Completion Gate (Required)**: Project note mới chỉ được coi là xong khi:
+   - Có `summary`, `status`, `## 📁 File Paths`, `## 🎯 When to use / When NOT to use`, và footer `[[index]] | [[Tên MOC]]`.
+   - Xuất hiện trong đúng Project MOC.
+   - Chạy `ingest-memory.sh` xong và note đó không còn lỗi blocking.
+   - Nếu thiếu bất kỳ mục nào ở trên, dừng lại và sửa note trước khi làm việc khác.
 
 ---
 
@@ -178,6 +184,7 @@ Script sẽ exit với lỗi rõ ràng nếu thiếu:
 - Note nằm sai vị trí (root `LLM_Wiki/` thay vì subfolder)
 - Note thiếu footer `[[index]] | [[Tên MOC]]`
 - Mismatch giữa `ls LLM_Wiki/Projects/` và danh sách trong Project MOC — mọi file trong Projects/ phải có entry trong MOC tương ứng.
+- Project note mới tạo/chỉnh sửa trong session hiện tại mà thiếu template chuẩn hoặc chưa có MOC entry = fail gate, phải sửa trước khi tuyên bố xong.
 
 > **Validation Limit:** Script chỉ validate cấu trúc (link, summary, orphan). Lỗi nội dung nghiệp vụ (thiếu nhật ký, note chưa cập nhật) không được detect tự động — Agent phải tự đối soát thủ công trước khi tuyên bố done.
 

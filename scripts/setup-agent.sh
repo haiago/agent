@@ -28,6 +28,7 @@ rm -rf .gemini/skills && ln -s ../.agent/skills .gemini/skills
 # 2. Kiểm tra và nạp linh hồn vào GEMINI.md
 GEMINI_FILE="GEMINI.md"
 SOUL_IMPORTS=(
+    "@.agent/rules/SHARED.md"
     "@.agent/rules/GEMINI.md"
     "@.agent/rules/PERSONALITY.md"
     "@./AGENTS.md"

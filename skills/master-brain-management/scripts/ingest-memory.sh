@@ -99,10 +99,34 @@ note_status() {
     frontmatter_value "$file" "status" || true
 }
 
+has_project_footer() {
+    local file="$1"
+    tail -n 5 "$file" | grep -qE '^\[\[index\]\] \| \[\[[^]]+\]\]$'
+}
+
 safe_replace_version() {
     local file="$1"
     [ -f "$file" ] || return 0
     perl -0pi -e 's/(?:Refinery-)?v6\.\d+/$ENV{CURRENT_VERSION}/g' "$file"
+}
+
+NEW_PROJECT_NOTES_FILE="$(mktemp)"
+trap 'rm -f "$NEW_PROJECT_NOTES_FILE"' EXIT
+if git -C "$MASTER_BRAIN_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    while IFS= read -r rel_path || [ -n "$rel_path" ]; do
+        [ -n "$rel_path" ] || continue
+        printf '%s\n' "$MASTER_BRAIN_ROOT/$rel_path" >> "$NEW_PROJECT_NOTES_FILE"
+    done < <(git -C "$MASTER_BRAIN_ROOT" diff --cached --name-only --diff-filter=A -- "LLM_Wiki/Projects")
+
+    while IFS= read -r rel_path || [ -n "$rel_path" ]; do
+        [ -n "$rel_path" ] || continue
+        printf '%s\n' "$MASTER_BRAIN_ROOT/$rel_path" >> "$NEW_PROJECT_NOTES_FILE"
+    done < <(git -C "$MASTER_BRAIN_ROOT" ls-files --others --exclude-standard -- "LLM_Wiki/Projects")
+fi
+
+is_new_project_note() {
+    local file="$1"
+    grep -Fxq -- "$file" "$NEW_PROJECT_NOTES_FILE" 2>/dev/null
 }
 
 note_exists() {
@@ -221,6 +245,7 @@ MISSING_SUMMARY_COUNT=0
 MISSING_STATUS_COUNT=0
 MISSING_FILE_PATHS_COUNT=0
 MISSING_WHEN_NOT_WHEN_COUNT=0
+BLOCKING_PROJECT_NOTE_COUNT=0
 TOTAL_NOTES=0
 
 log_step "🩺 Đang chẩn đoán mạng lưới tri thức..."
@@ -253,15 +278,33 @@ while read -r note; do
 
     # Check: Project notes phải có section File Paths (v7.7)
     if [[ "$note" == *"/Projects/"* ]]; then
+        note_is_new=0
+        if is_new_project_note "$note"; then
+            note_is_new=1
+        fi
+
         if ! grep -q '## .*File Path' "$note" 2>/dev/null; then
             echo "| 📁 Missing File Paths | [[${basename}]] | Project note cần section \`## 📁 File Paths\` với path thật đã verify |" >> "$HEALTH_FILE"
             MISSING_FILE_PATHS_COUNT=$((MISSING_FILE_PATHS_COUNT + 1))
+            if [ "$note_is_new" -eq 1 ]; then
+                BLOCKING_PROJECT_NOTE_COUNT=$((BLOCKING_PROJECT_NOTE_COUNT + 1))
+            fi
         fi
 
         # Check: Project notes phải có section When/Not-when (v7.7)
         if ! grep -q '## .*When to use' "$note" 2>/dev/null; then
             echo "| 🎯 Missing When/Not-when | [[${basename}]] | Project note cần section \`## 🎯 When to use / When NOT to use\` |" >> "$HEALTH_FILE"
             MISSING_WHEN_NOT_WHEN_COUNT=$((MISSING_WHEN_NOT_WHEN_COUNT + 1))
+            if [ "$note_is_new" -eq 1 ]; then
+                BLOCKING_PROJECT_NOTE_COUNT=$((BLOCKING_PROJECT_NOTE_COUNT + 1))
+            fi
+        fi
+
+        if ! has_project_footer "$note"; then
+            echo "| 🦶 Missing Footer | [[${basename}]] | Project note cần footer \`[[index]] | [[Tên MOC]]\` |" >> "$HEALTH_FILE"
+            if [ "$note_is_new" -eq 1 ]; then
+                BLOCKING_PROJECT_NOTE_COUNT=$((BLOCKING_PROJECT_NOTE_COUNT + 1))
+            fi
         fi
     fi
 
@@ -345,4 +388,9 @@ cat >> "$HEALTH_FILE" <<EOF
 EOF
 
 echo "---------------------------------------------------------------"
+if [ "$BLOCKING_PROJECT_NOTE_COUNT" -gt 0 ]; then
+    log_error "❌ Có project note mới chưa đạt template/MOC gate: $BLOCKING_PROJECT_NOTE_COUNT"
+    exit 1
+fi
+
 log_info "✅ Hoàn tất. Kiểm tra [[index]] và [[Wiki Health MOC]]."
