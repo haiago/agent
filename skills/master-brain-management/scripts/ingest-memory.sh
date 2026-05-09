@@ -104,11 +104,6 @@ has_project_footer() {
     tail -n 5 "$file" | grep -qE '^\[\[index\]\] \| \[\[[^]]+\]\]$'
 }
 
-safe_replace_version() {
-    local file="$1"
-    [ -f "$file" ] || return 0
-    perl -0pi -e 's/(?:Refinery-)?v6\.\d+/$ENV{CURRENT_VERSION}/g' "$file"
-}
 
 NEW_PROJECT_NOTES_FILE="$(mktemp)"
 trap 'rm -f "$NEW_PROJECT_NOTES_FILE"' EXIT
@@ -177,26 +172,6 @@ if [ ! -d "$WIKI_DIR" ] || [ ! -d "$MOC_DIR" ]; then
     exit 1
 fi
 
-log_step "🔄 Đồng bộ version string dựa trên .version-sync-manifest..."
-MANIFEST_FILE="$MASTER_BRAIN_ROOT/.version-sync-manifest"
-
-if [ -f "$MANIFEST_FILE" ]; then
-    while read -r rel_path || [ -n "$rel_path" ]; do
-        [[ "$rel_path" =~ ^#.* ]] && continue
-        [[ -z "$rel_path" ]] && continue
-        target_file="$MASTER_BRAIN_ROOT/$rel_path"
-        if [ -f "$target_file" ]; then
-            safe_replace_version "$target_file"
-        else
-            log_warn "  ⚠️ File trong manifest không tồn tại: $rel_path"
-        fi
-    done < "$MANIFEST_FILE"
-else
-    log_warn "  ⚠️ Không tìm thấy .version-sync-manifest. Sử dụng default sync..."
-    files_to_sync=(
-        "$MASTER_BRAIN_ROOT/GEMINI.md"
-        "$MASTER_BRAIN_ROOT/.agent/rules/GEMINI.md"
-        "$WIKI_DIR/Concepts/LLM Wiki.md"
     )
     for file in "${files_to_sync[@]}"; do
         safe_replace_version "$file"
