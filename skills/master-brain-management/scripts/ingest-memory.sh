@@ -172,11 +172,6 @@ if [ ! -d "$WIKI_DIR" ] || [ ! -d "$MOC_DIR" ]; then
     exit 1
 fi
 
-    )
-    for file in "${files_to_sync[@]}"; do
-        safe_replace_version "$file"
-    done
-fi
 
 cat > "$HEALTH_FILE" <<EOF
 ---
