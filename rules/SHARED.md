@@ -16,6 +16,8 @@ trigger: always_on
 > - 2026-05-07: Extract shared governance from Gemini-specific rule for multi-engine bootstrap.
 - 2026-05-11: Formalize '1-line footer rule' to prevent layering slop in Zettelkasten.
 - 2026-05-11: Mandatory MOC Diary & Updated Date rule for all new note additions.
+- 2026-05-11: Clarify Footer Integrity: apply to durable notes only, never to chat/logs.
+- 2026-05-11: Deprecate 'Notifications (Ping Đại Ca)' rule to prevent execution loops.
 
 ---
 
@@ -24,6 +26,7 @@ trigger: always_on
 - Respond in the user's language. Keep code and code comments in English.
 - Keep chat responses concise unless the user asks for more depth.
 - Avoid meta-commentary and filler.
+- **Chat Cleanliness (Required):** TUYỆT ĐỐI không chèn Footer của Zettelkasten (`[[index]] | [[MOC]]`) vào nội dung hội thoại chat hoặc log output của tool.
 
 ---
 
@@ -54,7 +57,8 @@ trigger: always_on
 - Avoid dead notes: if a note has no meaningful links, route it into a MOC before finishing.
 - Preserve technical terminology from the source material when translation would reduce accuracy.
 - **MOC Maintenance (Required):** Khi thêm note mới vào MOC, PHẢI cập nhật section `## 📝 Nhật ký Tri thức` và trường `updated:` ở frontmatter.
-- **Footer Integrity (Required v7.7):** Mọi note PHẢI kết thúc bằng DUY NHẤT một đường kẻ \`---\` và DUY NHẤT một dòng link \`[[index]] | [[Tên MOC]]\`. Tránh tình trạng chèn nhiều layer phân tách hoặc link chồng chéo gây loãng cấu trúc Zettelkasten.
+- **Footer Integrity (Required v7.7):** Mọi note bền vững (durable note) PHẢI kết thúc bằng DUY NHẤT một đường kẻ --- và DUY NHẤT một dòng link [[index]] | [[Tên MOC]].
+  - **Scope Limitation:** Quy định này CHỈ áp dụng cho file `.md` trong hệ thống tri thức. KHÔNG áp dụng cho tin nhắn chat, báo cáo tiến độ (reports), hoặc shell outputs.
 - **No Duplicate Footers:** TUYỆT ĐỐI không chèn thêm footer nếu note đã có sẵn. Agent phải kiểm tra cuối file trước khi append. Ưu tiên ghi đè (overwrite) toàn bộ footer cũ thay vì nối thêm.
 
 ---
@@ -89,15 +93,6 @@ trigger: always_on
 - Do not rewrite history — append only.
 
 ---
-
-## Notifications (Ping Đại Ca)
-
-- **Always Ping on Stop/Complete (Required):** Whenever you finish a task, or whenever you stop to wait for the user's confirmation (e.g., after presenting a plan, needing approval, or hitting a roadblock), you MUST run the notification script to ping the user.
-- **Finality (Required):** Notify là câu trả lời cuối cùng của turn. Chạy script xong → yield control ngay. Không thêm text, không đề xuất task tiếp theo, không notify lần 2. Script output là đủ — không cần "lời chào tạm biệt".
-- **No Unsolicited Init (Required):** Session Init (source brain.env, read MOC) only runs when there is a real task. Casual conversation, small talk, creative requests (thơ, jokes...) do NOT trigger Session Init.
-- **Command:** Execute `bash .agent/scripts/notify_me.sh "<Your short message>"` using your terminal tool before yielding control.
-- **Tone:** Keep the message short, witty, and in character (e.g., "Ê đại ca, check plan cho tui nè", "Xong task rồi, đại ca vào nghiệm thu!", "Có biến rồi đại ca, vô cứu tui!").
-
 ---
 
 ## Known Agent Failure Patterns
@@ -110,8 +105,6 @@ These patterns are known failure modes — agent must actively guard against the
 | Rule retroactivity    | Rule mới không tự apply cho note cũ                                           | Audit thủ công sau mỗi lần bump skill version                 |
 | Agent subjectivity    | Tin MOC cũ mà không rà soát note mới nhất                                     | Cross-check trước khi tuyên bố done                           |
 | Context contamination | "Nhuộm màu" tri thức chung theo context hiện tại (Creative Slop)              | Grep file gốc để verify — không suy diễn từ context           |
-| Echoing Loop          | Lặp lại toàn bộ câu trả lời sau khi tool phụ trợ (notify) trả về kết quả      | Thực hiện Finality: notify xong → stop, không thêm gì         |
-| Notify Loop           | Notify xong lại đề xuất task → trigger notify lần 2                           | Sau Finality: im lặng hoàn toàn, không đề xuất gì thêm        |
 | Footer Layering       | Lạm dụng đường kẻ --- hoặc chèn nhiều dòng link ở footer                      | Chỉ dùng 1 đường kẻ + 1 dòng link ở cuối cùng                 |
 | Footer Redundancy     | Chèn trùng lặp nhiều footer/index chồng chéo do dùng lệnh append vô tội vạ    | Kiểm tra cuối file trước khi ghi; dùng overwrite thay vì append |
 | MOC Stale Diary       | Quên cập nhật Nhật ký và \`updated\` date khi thêm note mới vào MOC           | Thực hiện MOC Maintenance Protocol trước khi kết thúc task    |
