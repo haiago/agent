@@ -46,7 +46,10 @@ summary: "Tổng hợp nội dung bài đọc"
 Mọi tri thức từ dự án thực tế PHẢI tuân thủ:
 
 1. **Project MOC**: Tạo `[Project Name] MOC.md` trong `/MOCs` với tag `#projects` và `#moc`.
-2. **Internal Linking**: Project MOC phải link tới `/Projects/[Project Name].md`.
+2. **MOC Diary & Timestamp (Required)**: Khi thêm bất kỳ note mới nào vào MOC, agent PHẢI:
+   - Cập nhật section `## 📝 Nhật ký Tri thức` với nội dung tóm tắt thay đổi.
+   - Cập nhật trường `updated:` trong frontmatter của MOC đó về ngày hiện tại.
+3. **Internal Linking**: Project MOC phải link tới `/Projects/[Project Name].md`.
 3. **Cross-Linking**: Project MOC phải link tới Concepts/Tools dùng chung đã có.
 4. **Status Declaration (Required)**: Khi harvest bất kỳ pattern/decision nào, agent PHẢI khai báo `status:` trong frontmatter. **Cấm để trống.**
    - Pattern đang dùng trong codebase → `status: current`
@@ -185,6 +188,7 @@ Script sẽ exit với lỗi rõ ràng nếu thiếu:
 - Note thiếu footer `[[index]] | [[Tên MOC]]`
 - Mismatch giữa `ls LLM_Wiki/Projects/` và danh sách trong Project MOC — mọi file trong Projects/ phải có entry trong MOC tương ứng.
 - Project note mới tạo/chỉnh sửa trong session hiện tại mà thiếu template chuẩn hoặc chưa có MOC entry = fail gate, phải sửa trước khi tuyên bố xong.
+- MOC liên quan chưa cập nhật Nhật ký và `updated` date cho các thay đổi trong session = vi phạm kỷ luật Harvest.
 
 > **Validation Limit:** Script chỉ validate cấu trúc (link, summary, orphan). Lỗi nội dung nghiệp vụ (thiếu nhật ký, note chưa cập nhật) không được detect tự động — Agent phải tự đối soát thủ công trước khi tuyên bố done.
 

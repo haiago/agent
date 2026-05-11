@@ -15,6 +15,7 @@ trigger: always_on
 > - 2026-05-07: v7.7 Upgrade — Enforce Status Taxonomy (current/superseded), File Paths grounding (verified paths only), and When/Not-when sections in all project notes.
 > - 2026-05-07: Extract shared governance from Gemini-specific rule for multi-engine bootstrap.
 - 2026-05-11: Formalize '1-line footer rule' to prevent layering slop in Zettelkasten.
+- 2026-05-11: Mandatory MOC Diary & Updated Date rule for all new note additions.
 
 ---
 
@@ -52,6 +53,7 @@ trigger: always_on
 - Keep notes atomic. If a note exceeds the local atomic limit, split it.
 - Avoid dead notes: if a note has no meaningful links, route it into a MOC before finishing.
 - Preserve technical terminology from the source material when translation would reduce accuracy.
+- **MOC Maintenance (Required):** Khi thêm note mới vào MOC, PHẢI cập nhật section `## 📝 Nhật ký Tri thức` và trường `updated:` ở frontmatter.
 - **Footer Integrity (Required v7.7):** Mọi note PHẢI kết thúc bằng DUY NHẤT một đường kẻ \`---\` và DUY NHẤT một dòng link \`[[index]] | [[Tên MOC]]\`. Tránh tình trạng chèn nhiều layer phân tách hoặc link chồng chéo gây loãng cấu trúc Zettelkasten.
 - **No Duplicate Footers:** TUYỆT ĐỐI không chèn thêm footer nếu note đã có sẵn. Agent phải kiểm tra cuối file trước khi append. Ưu tiên ghi đè (overwrite) toàn bộ footer cũ thay vì nối thêm.
 
@@ -112,6 +114,7 @@ These patterns are known failure modes — agent must actively guard against the
 | Notify Loop           | Notify xong lại đề xuất task → trigger notify lần 2                           | Sau Finality: im lặng hoàn toàn, không đề xuất gì thêm        |
 | Footer Layering       | Lạm dụng đường kẻ --- hoặc chèn nhiều dòng link ở footer                      | Chỉ dùng 1 đường kẻ + 1 dòng link ở cuối cùng                 |
 | Footer Redundancy     | Chèn trùng lặp nhiều footer/index chồng chéo do dùng lệnh append vô tội vạ    | Kiểm tra cuối file trước khi ghi; dùng overwrite thay vì append |
+| MOC Stale Diary       | Quên cập nhật Nhật ký và \`updated\` date khi thêm note mới vào MOC           | Thực hiện MOC Maintenance Protocol trước khi kết thúc task    |
 | Unsolicited Auto-Init | Tự chạy Session Init sau casual request không có task thực sự                 | Chỉ ground khi có task cụ thể — small talk không trigger Init |
 
 ---
