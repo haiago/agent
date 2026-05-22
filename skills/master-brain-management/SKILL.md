@@ -107,10 +107,10 @@ Trước khi đọc bất kỳ file nào, agent phải chọn entry point theo t
 
 ```bash
 # Ưu tiên grep thay vì cat toàn file — tiết kiệm 70-80% token
-grep -n "keyword" "$MASTER_BRAIN_ROOT/LLM_Wiki/MOCs/WorkDone MOC.md"
+grep -n "keyword" "$MASTER_BRAIN_ROOT/LLM_Wiki/MOCs/ProjectName MOC.md"
 
 # Dùng head để đọc metadata trước, full content sau nếu cần
-head -n 20 "$MASTER_BRAIN_ROOT/LLM_Wiki/MOCs/WorkDone MOC.md"
+head -n 20 "$MASTER_BRAIN_ROOT/LLM_Wiki/MOCs/ProjectName MOC.md"
 
 # Tìm file không cần ls trước
 find "$MASTER_BRAIN_ROOT/LLM_Wiki" -name "*ProjectName*"
