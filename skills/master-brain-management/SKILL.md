@@ -47,8 +47,9 @@ Mọi tri thức từ dự án thực tế PHẢI tuân thủ:
 
 1. **Project MOC**: Tạo `[Project Name] MOC.md` trong `/MOCs` với tag `#projects` và `#moc`.
 2. **MOC Diary & Timestamp (Required)**: Khi thêm bất kỳ note mới nào vào MOC, agent PHẢI:
-   - Cập nhật section `## 📝 Nhật ký Tri thức` với nội dung tóm tắt thay đổi.
    - Cập nhật trường `updated:` trong frontmatter của MOC đó về ngày hiện tại.
+   - Cập nhật section `## 📝 Nhật ký Tri thức`. **Chỉ giữ tối đa 3-5 dòng nhật ký gần nhất** trong file MOC chính.
+   - Di tản toàn bộ nhật ký cũ hơn sang file `[Tên] MOC Diary.md` nằm cùng thư mục, đặt đường link trỏ tới Diary ở cuối mục Nhật ký trong MOC chính.
 3. **Internal Linking**: Project MOC phải link tới `/Projects/[Project Name].md`.
 3. **Cross-Linking**: Project MOC phải link tới Concepts/Tools dùng chung đã có.
 4. **Status Declaration (Required)**: Khi harvest bất kỳ pattern/decision nào, agent PHẢI khai báo `status:` trong frontmatter. **Cấm để trống.**
@@ -189,8 +190,9 @@ Script sẽ exit với lỗi rõ ràng nếu thiếu:
 - Mismatch giữa `ls LLM_Wiki/Projects/` và danh sách trong Project MOC — mọi file trong Projects/ phải có entry trong MOC tương ứng.
 - Project note mới tạo/chỉnh sửa trong session hiện tại mà thiếu template chuẩn hoặc chưa có MOC entry = fail gate, phải sửa trước khi tuyên bố xong.
 - MOC liên quan chưa cập nhật Nhật ký và `updated` date cho các thay đổi trong session = vi phạm kỷ luật Harvest.
+- Nhật ký trong bất kỳ MOC chính nào dài quá 5 dòng mà chưa được di tản sang `* MOC Diary.md`.
 
-> **Validation Limit:** Script chỉ validate cấu trúc (link, summary, orphan). Lỗi nội dung nghiệp vụ (thiếu nhật ký, note chưa cập nhật) không được detect tự động — Agent phải tự đối soát thủ công trước khi tuyên bố done.
+> **Validation Limit:** Script chỉ validate cấu trúc (link, summary, orphan). Lỗi nội dung nghiệp vụ (thiếu nhật ký, note chưa cập nhật, MOC Diary phình to) không được detect tự động — Agent phải tự đối soát thủ công trước khi tuyên bố done.
 
 **Mandatory Sync Contract:**
 Every write or edit to `LLM_Wiki/` is considered incomplete until `ingest-memory.sh`
@@ -222,3 +224,5 @@ this step. If the script fails, report the error and halt — do not mark done.
 | superseded không có superseded_by | Thêm `superseded_by: [[...]]` vào frontmatter                       |
 | Project note thiếu File Paths     | Thêm section `## 📁 File Paths` với path đã verify                  |
 | Project note thiếu When/Not-when  | Thêm section `## 🎯 When to use` trước khi ingest                   |
+| MOC Changelog phình to            | Di tản log cũ sang file `* MOC Diary.md`, chỉ giữ tối đa 3-5 dòng   |
+

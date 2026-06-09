@@ -56,7 +56,10 @@ trigger: always_on
 - Keep notes atomic. If a note exceeds the local atomic limit, split it.
 - Avoid dead notes: if a note has no meaningful links, route it into a MOC before finishing.
 - Preserve technical terminology from the source material when translation would reduce accuracy.
-- **MOC Maintenance (Required):** Khi thêm note mới vào MOC, PHẢI cập nhật section `## 📝 Nhật ký Tri thức` và trường `updated:` ở frontmatter.
+- **MOC Maintenance (Required):** Khi thêm note mới vào MOC, PHẢI cập nhật trường `updated:` ở frontmatter và section `## 📝 Nhật ký Tri thức`.
+  - Chỉ giữ tối đa **3-5 dòng nhật ký gần nhất** trong file MOC chính để tối ưu token.
+  - Toàn bộ nhật ký cũ hơn PHẢI được di tản sang file `[Tên] MOC Diary.md` nằm cùng thư mục.
+  - Tại MOC chính, ở cuối section Nhật ký phải có đường link dẫn tới Diary (ví dụ: `> [!NOTE] Xem nhật ký cũ hơn tại [[WorkDone MOC Diary]]`).
 - **Footer Integrity (Required v7.7):** Mọi note bền vững (durable note) PHẢI kết thúc bằng DUY NHẤT một đường kẻ --- và DUY NHẤT một dòng link [[index]] | [[Tên MOC]].
   - **Scope Limitation:** Quy định này CHỈ áp dụng cho file `.md` trong hệ thống tri thức. KHÔNG áp dụng cho tin nhắn chat, báo cáo tiến độ (reports), hoặc shell outputs.
 - **No Duplicate Footers:** TUYỆT ĐỐI không chèn thêm footer nếu note đã có sẵn. Agent phải kiểm tra cuối file trước khi append. Ưu tiên ghi đè (overwrite) toàn bộ footer cũ thay vì nối thêm.
@@ -107,7 +110,7 @@ These patterns are known failure modes — agent must actively guard against the
 | Context contamination | "Nhuộm màu" tri thức chung theo context hiện tại (Creative Slop)              | Grep file gốc để verify — không suy diễn từ context           |
 | Footer Layering       | Lạm dụng đường kẻ --- hoặc chèn nhiều dòng link ở footer                      | Chỉ dùng 1 đường kẻ + 1 dòng link ở cuối cùng                 |
 | Footer Redundancy     | Chèn trùng lặp nhiều footer/index chồng chéo do dùng lệnh append vô tội vạ    | Kiểm tra cuối file trước khi ghi; dùng overwrite thay vì append |
-| MOC Stale Diary       | Quên cập nhật Nhật ký và \`updated\` date khi thêm note mới vào MOC           | Thực hiện MOC Maintenance Protocol trước khi kết thúc task    |
+| MOC Stale Diary       | Quên cập nhật Nhật ký, \`updated\` date hoặc không di tản log cũ sang Diary | Thực hiện MOC Maintenance Protocol, giữ MOC chính gọn gàng (< 5 logs) |
 | Unsolicited Auto-Init | Tự chạy Session Init sau casual request không có task thực sự                 | Chỉ ground khi có task cụ thể — small talk không trigger Init |
 
 ---
