@@ -43,12 +43,10 @@ git submodule add https://github.com/haiago/agent.git .agent
 agent/
 ├── .antigravity-plugin/      # Manifest tích hợp native cho Antigravity IDE
 │   └── plugin.json
-├── rules/                    # Hiến pháp quản trị đa Engine (Multi-Engine Governance)
-│   ├── SHARED.md             # Quy tắc chung: Memory contract, Note quality, Anti-slop
+├── rules/                    # 3 Trụ cột Hiến pháp quản trị (Streamlined Governance)
+│   ├── SHARED.md             # Quy tắc chung: Memory contract, Grounding, Anti-slop
 │   ├── PERSONALITY.md        # Nhân cách "Lão Ní Senior Pro" (SOI → CHIA → MÚA → SOÁT → KHẮC)
-│   ├── GEMINI.md             # Engine policy P0 cho Google Gemini
-│   ├── CODEX.md              # Engine policy cho OpenAI Codex
-│   └── model-registry.md     # Danh bạ các model tier (Pro / Flash / Flash-Lite)
+│   └── GEMINI.md             # Điều phối Subagent, Deep Reasoning & Multi-Engine policy
 ├── skills/                   # Kho vũ khí tác chiến (Composable Skills)
 │   ├── using-superpowers/    # Điều phối kích hoạt skill tự động
 │   ├── brainstorming/        # [v7.0.1] Interactive Discovery & Builder Check subagent

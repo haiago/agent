@@ -2,40 +2,39 @@
 trigger: always_on
 ---
 
-# GEMINI.md — Gemini Engine Rules
+# GEMINI.md — Multi-Engine & Subagent Policy
 
 > Priority: P0 engine profile. Shared governance lives in `SHARED.md`.
 >
 > changelog:
 >
-> - 2026-04-28: Foundation — fix stale model alias, Deep Think triggers, Wiki Health enforcement, versioning policy.
-> - 2026-04-29: Execution discipline — Env First, Clean Root, Strict Grounding, Workspace Boundary Awareness, Grounding Over Creation, Notifications section.
-> - 2026-04-30: Notifications — Finality rule (notify + stop, no text needed); move section before Scope Boundary.
-> - 2026-05-02: Agent failure patterns — Known Failure Patterns section, No Unsolicited Init rule.
-> - 2026-05-07: v7.7 Upgrade — Enforce Status Taxonomy (current/superseded), File Paths grounding (verified paths only), and When/Not-when sections in all project notes.
-> - 2026-05-07: Extract shared governance to `SHARED.md`; keep Gemini-specific engine policy only.
-> - 2026-05-07: Clarify bootstrap role: this file now exists only for Gemini-specific engine policy.
+> - 2026-04-28: Initial engine foundation.
+> - 2026-05-07: Split shared governance to `SHARED.md`.
+> - 2026-10-22: Consolidate `CODEX.md` and remove stale `model-registry.md`; align subagent allocation with native Antigravity runtime.
 
 ---
 
-## Model & Engine
+## 1. Subagent & Model Allocation
 
-- **Primary Engine:** Always prioritize the **Gemini series**. Resolve the exact model alias at runtime from `./model-registry.md` — never hardcode a version string in this file.
-- **Review cadence:** Re-evaluate the active model alias at least once per quarter or when a new major version is released.
+- **Active Session Model:** Controlled directly by the user via the IDE/CLI selector. Never hardcode or assume stale model version strings in prompts or application code.
+- **Subagent Dispatch (`invoke_subagent`):**
+  - **`inherit` (Default):** Use for standard subagent tasks to match the parent session's model.
+  - **`pro`:** Complex architecture, deep root-cause debugging, security reviews.
+  - **`flash` / `flash_lite`:** High-speed mechanical edits, exploration, boilerplate generation, or parallel read-only tasks.
+  - When in doubt between speed and correctness, bias toward correctness (`inherit` or `pro`).
 
-- **Task Allocation** (guidelines, not hard rules — use judgment):
-  - **Pro tier:** Complex reasoning, architectural design, debugging deep-rooted issues, final code reviews.
-  - **Flash tier:** Rapid implementation, mechanical tasks, unit test generation, initial drafts.
-  - When in doubt about tier, default to Pro. Speed is secondary to correctness.
+---
 
-- **Deep Think:** Activate when **any** of the following apply:
-  - The problem requires multi-step logical inference across more than 3 dependencies.
-  - An initial approach has failed or produced contradictory output.
-  - The task involves security, data integrity, or irreversible side effects.
-  - The user explicitly requests it.
+## 2. Deep Reasoning Triggers
 
-## Gemini Runtime Notes
+Escalate reasoning effort when any of the following apply:
+- Multi-step logical inference spanning **more than 3 dependencies**.
+- A previous implementation or fix attempt failed or produced contradictory results.
+- High-risk operations involving **security, authentication, data integrity, or irreversible side effects**.
 
-- Use root `GEMINI.md` as the Gemini bootstrap entrypoint for project instructions.
-- Keep engine-specific rules in this file. Keep shared governance in `SHARED.md`.
-- If a project also supports Codex, treat `CODEX.md` as a sibling engine profile rather than a competing source of truth.
+---
+
+## 3. Cross-Harness Compatibility (Antigravity / Gemini / Codex)
+
+- Root `GEMINI.md` is the canonical project instructions entrypoint.
+- Root `AGENTS.md` acts as a lightweight pointer to `GEMINI.md` for Codex/Claude harnesses so instructions are never duplicated across files.
