@@ -5,18 +5,7 @@ description: Quy trình Sentinel v7.7 - Ép Agent trích xuất tinh hoa nguyên
 
 # Master Brain Management (Sentinel v7.7)
 
-> changelog:
->
-> - v7.1: Initial Sentinel standard. Atomic note rules, Harvest law, Ingest pipeline.
-> - v7.2: Add step 0 Verify (ls before read_file); add Mandatory Sync Contract; clarify done criteria.
-> - v7.3: Add Auto-Routing rule (never write to LLM_Wiki/ root); add Footer Required to Atomic Note rules.
-> - v7.4: Add cross-check done criteria (ls Projects/ vs MOC); add structural vs content validation limit note.
-> - v7.5: Add Routing Decision Tree — MOC-first, index as last resort.
-> - v7.6: Add token optimization (grep-first, head before cat, find over ls); add shell quoting rule.
-> - v7.7: Add Harvest Law — Status Declaration, File Path Grounding, When/Not-when (per Codex brain eval).
-> - 2026-05-09: Add completion gate for new project notes and MOC enforcement on ingest.
-
-Mục tiêu tối thượng: **Triệt tiêu Slop**. Biến tri thức thành mạng lưới các viên gạch "copy-paste xài ngay".
+Mục tiêu tối thượng: **Triệt tiêu Slop**. Biến tri thức thành mạng lưới các viên gạch nguyên tử "copy-paste xài ngay".
 
 ---
 
@@ -50,8 +39,7 @@ Mọi tri thức từ dự án thực tế PHẢI tuân thủ:
    - Cập nhật trường `updated:` trong frontmatter của MOC đó về ngày hiện tại.
    - Cập nhật section `## 📝 Nhật ký Tri thức`. **Chỉ giữ tối đa 3-5 dòng nhật ký gần nhất** trong file MOC chính.
    - Di tản toàn bộ nhật ký cũ hơn sang file `[Tên] MOC Diary.md` nằm cùng thư mục, đặt đường link trỏ tới Diary ở cuối mục Nhật ký trong MOC chính.
-3. **Internal Linking**: Project MOC phải link tới `/Projects/[Project Name].md`.
-3. **Cross-Linking**: Project MOC phải link tới Concepts/Tools dùng chung đã có.
+3. **Internal & Cross-Linking**: Project MOC phải link tới `/Projects/[Project Name].md` và các Concepts/Tools dùng chung đã có.
 4. **Status Declaration (Required)**: Khi harvest bất kỳ pattern/decision nào, agent PHẢI khai báo `status:` trong frontmatter. **Cấm để trống.**
    - Pattern đang dùng trong codebase → `status: current`
    - Đã refactor/thay thế → `status: superseded` + ghi `superseded_by: [[...]]`
@@ -204,7 +192,7 @@ this step. If the script fails, report the error and halt — do not mark done.
 ## ⚠️ Anti-Slop Safeguards
 
 - **Language Integrity**: Tài liệu nguồn tiếng Anh → giữ nguyên tiếng Anh trong Atomic Note.
-- **Sync bắt buộc**: Mọi thay đổi logic phải đồng bộ `GEMINI.md`, `LLM Wiki.md`, các MOC liên quan. Script tự sync version string trong danh sách file cố định — nếu thêm file mới cần sync, cập nhật `files_to_sync` trong script.
+- **Sync bắt buộc**: Mọi thay đổi kiến trúc hoặc quy ước phải được phản ánh đồng bộ vào các MOC liên quan.
 - **Không orphan note**: Mọi note phải xuất hiện trong ít nhất 1 MOC.
 - **Không mâu thuẫn**: Note A nói X, Note B nói Y → hợp nhất hoặc sửa đổi.
 
