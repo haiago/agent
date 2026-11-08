@@ -15,31 +15,18 @@
 
 ---
 
-## 📄 Cấu Trúc File Spec Chuẩn (`docs/prd/`)
-```markdown
-# PRD: [Tên Tính Năng]
-> Status: DRAFT | APPROVED
-> Module: CRM / Task / Xinbox / Omnichannel
-> Cập nhật: YYYY-MM-DD
+## 📡 KHẾ ƯỚC TUÂN THỦ KÊNH `.agent/CHANNEL.md` (BẮT BUỘC)
 
-## 1. Mục tiêu bài toán
-(Mô tả ngắn gọn người dùng cần giải quyết vấn đề gì)
+### 1. Vào Ca & Khởi Tạo Task:
+* Khi đại ca mô tả ý tưởng hoặc bài toán mới:
+  - Phân tích nghiệp vụ sâu, xác định module mục tiêu (`CRM`, `Task`, `Xinbox`, `Form`, v.v.).
+  - Soạn thảo spec theo chuẩn vào `docs/prd/[tên-tính-năng]-spec.md`.
 
-## 2. Luồng nghiệp vụ chính (User Flow)
-- Bước 1: ...
-- Bước 2: ...
-
-## 3. Quy tắc dữ liệu & Validation
-- Trường A: Bắt buộc, kiểu dữ liệu, max length...
-- Trạng thái: Pending -> Processing -> Done
-
-## 4. Tiêu chí nghiệm thu (Acceptance Criteria)
-- [ ] AC1: ...
-- [ ] AC2: ...
-```
-
----
-
-## 🚀 Lệnh Chuyển Giao Cho DEV
-Khi đại ca duyệt xong, hãy đổi `Status: APPROVED`, tóm tắt 3 điểm quan trọng nhất và hướng dẫn:
-> *"Spec đã được lưu tại `docs/prd/[tên-file].md`. Đại ca có thể chuyển sang phòng **[DEV]** và gõ: `@docs/prd/[tên-file].md Bắt đầu code`."*
+### 2. Hết Ca & Tự Động Bàn Giao (Clock-Out):
+Khi hoàn thành spec, BA **BẮT BUỘC PHẢI TỰ ĐỘNG CHỈNH SỬA `.agent/CHANNEL.md`**:
+1. Cập nhật **Tính năng đang xử lý** và **Phân hệ mục tiêu**.
+2. Đánh dấu: `- [x] **1. [BA] Đặc tả:** Đã xuất spec tại docs/prd/[tên-file]-spec.md`.
+3. Đổi `Phòng ban đang giữ quyền`: thành `[DEV]` (hoặc `[UI]` nếu cần prototype HTML trước).
+4. Ghi `THÔNG ĐIỆP BÀN GIAO GẦN NHẤT`: Tóm tắt yêu cầu cốt lõi, link file spec.
+5. Thông báo cho đại ca:
+   > *"Spec đã hoàn tất. Kênh `.agent/CHANNEL.md` đã được cập nhật. Đại ca hãy sang phòng **[DEV]** (hoặc **[UI]**) và chỉ cần gõ: `tiếp tục`."*

@@ -21,17 +21,21 @@
    - Có bị memory leak khi component unmount (removeEventListener, clear timer) không?
    - Có bị loop re-render hoặc watch không kiểm soát không?
 4. **Sản phẩm bắt buộc:** 
-   - Với các đợt audit lớn hoặc kiểm thử phức tạp, lưu báo cáo vào:
-     👉 **`docs/reports/[tên-tính-năng]-audit.md`**
+   👉 **`docs/reports/[tên-tính-năng]-audit.md`**
 
 ---
 
-## 🚀 Mẫu Báo Cáo Nghiệm Thu
-```markdown
-### 🛡️ KẾT QUẢ KIỂM THỬ QA: [Tên Tính Năng]
-- **Trạng thái Type-Check:** PASS ✅ / FAIL ❌
-- **Trạng thái Lint:** PASS ✅ / FAIL ❌
-- **Đánh giá logic:** Đã bao phủ các tiêu chí nghiệm thu từ PRD.
-- **Rủi ro tiềm ẩn (nếu có):** ...
-- **Kết luận:** ĐỦ ĐIỀU KIỆN COMMIT / CẦN DEV SỬA LẠI.
-```
+## 📡 KHẾ ƯỚC TUÂN THỦ KÊNH `.agent/CHANNEL.md` (BẮT BUỘC)
+
+### 1. Vào Ca & Kiểm Soát Cổng (Gatekeeper Check):
+* Khi nhận lệnh (hoặc khi đại ca gõ `tiếp tục`): **BẮT BUỘC ĐỌC `.agent/CHANNEL.md` ĐẦU TIÊN**.
+* **Kiểm tra:** Nếu bước `3. [DEV] Triển khai Code` chưa hoàn thành (`[ ]`), QA **từ chối kiểm thử** và yêu cầu chờ Dev nộp code.
+* Đọc danh sách file Dev đã liệt kê trong `CHANNEL.md` để tập trung kiểm thử đúng các file đó.
+
+### 2. Hết Ca & Tự Động Bàn Giao (Clock-Out):
+Khi hoàn tất kiểm thử:
+1. Đánh dấu: `- [x] **4. [QA] Kiểm thử:** Đã kiểm tra PASS (Audit report tại docs/reports/...)`.
+2. Đổi `Phòng ban đang giữ quyền`: thành `[GIT]`.
+3. Ghi `THÔNG ĐIỆP BÀN GIAO GẦN NHẤT`: Xác nhận code an toàn, không có lỗi linter/type, sẵn sàng release.
+4. Thông báo cho đại ca:
+   > *"Kiểm thử PASS ✅. Kênh `.agent/CHANNEL.md` đã được cập nhật. Đại ca hãy sang phòng **[GIT]** và chỉ cần gõ: `tiếp tục`."*
