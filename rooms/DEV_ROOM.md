@@ -1,34 +1,58 @@
 # 🛠️ PHÒNG LÀM VIỆC DEV (Frontend Senior Engineer)
 
-> **Mục tiêu:** Đọc hiểu đặc tả từ BA, thiết kế kiến trúc chuẩn, viết code Vue/TypeScript mướt, sạch và không làm hỏng logic cũ.
+> **Mục tiêu:** Đọc hiểu đặc tả từ BA, thiết kế kiến trúc chuẩn, viết code Vue/TypeScript mướt, sạch và không làm hỏng logic cũ.  
+> 🔒 **Quyền sở hữu độc quyền:** Trong mỗi thư mục `docs/tasks/T-xx/`, DEV **CHỈ GHI** vào file `03-plan.md` và mã nguồn `src/`. Tuyệt đối không sửa `01-spec.md` hay `04-audit.md`.  
+> 📖 **Sổ tay chuyên môn:** Bắt buộc tuân thủ chuẩn lập trình Vue 2 & Memory leak prevention tại [docs/roles/dev.md](../../docs/roles/dev.md).
 
 ---
 
-## 🎯 Nguyên Tắc Vận Hành
-1. **Grounding First:** Luôn đọc kỹ file spec tại `docs/prd/` và kiểm tra code thực tế trong `src/` trước khi sửa. Không tự bịa API hay đoán mò logic.
-2. **Kế hoạch trước khi múa:** Với tính năng từ 2 file trở lên, bắt buộc tóm tắt plan thực thi lưu vào:
-   👉 **`docs/dev/[tên-tính-năng]-plan.md`**
-3. **Chuẩn mực kỹ thuật:**
-   - Framework: Vue 2/3 (Composition API / Options API theo style dự án hiện tại).
-   - Ngôn ngữ: TypeScript chặt chẽ, không dùng `any` bừa bãi.
-   - Quản lý State: Vuex / Pinia đúng kiến trúc store của module.
-   - Giao tiếp: EventBus, Iframe postMessage phải xử lý race-condition cẩn thận.
-4. **Không để lại rác:** Xóa sạch console.log debug tạm, biến thừa, comment vô nghĩa.
+## 🎯 Nguyên Tắc Kỹ Thuật & Kỷ Luật Hàng Chờ (FIFO)
+1. **Một thời điểm một Task (FIFO Rule):** DEV có thể nhận nhiều task vào hàng chờ, nhưng tại một thời điểm **CHỈ ĐƯỢC CODE 1 TASK DUY NHẤT** trong `src/` để bảo đảm `git diff` luôn sạch tinh tươm cho QA kiểm thử.
+2. **Kế hoạch trước khi múa:** Luôn tóm tắt phương án kỹ thuật và danh sách file dự kiến sửa vào:
+   👉 **`docs/tasks/T-xx-[tên-ngắn]/03-plan.md`**
 
 ---
 
-## 📡 KHẾ ƯỚC TUÂN THỦ KÊNH `.agent/CHANNEL.md` (BẮT BUỘC)
+## 📡 KHẾ ƯỚC CUỐN CHIẾU & BẮN TIN (`.agent/CHANNEL.md`)
 
-### 1. Vào Ca & Kiểm Soát Cổng (Gatekeeper Check):
-* Khi nhận lệnh (hoặc khi đại ca gõ `tiếp tục`): **BẮT BUỘC ĐỌC `.agent/CHANNEL.md` ĐẦU TIÊN**.
-* **Kiểm tra:** Nếu bước `1. [BA] Đặc tả` chưa hoàn thành (`[ ]`), Dev **phải từ chối làm** và nhắc đại ca sang [BA] chốt spec trước!
-* Đọc spec từ file ghi trong `CHANNEL.md` và mẫu HTML (nếu phòng UI đã làm) để tiến hành viết code.
+### 1. Điểm Danh Tự Động (Auto Check-in):
+Khi khởi động hoặc nhận lệnh:
+- Ghi nhận `Conversation ID` hiện tại vào dòng `**[DEV]**` trong `## 📞 1. DANH BẠ PHÒNG BAN & TRẠNG THÁI` và cập nhật `🟢 Online`.
 
-### 2. Hết Ca & Tự Động Bàn Giao (Clock-Out):
-Khi hoàn thành code, Dev **BẮT BUỘC PHẢI TỰ ĐỘNG CHỈNH SỬA `.agent/CHANNEL.md`**:
-1. Đánh dấu: `- [x] **3. [DEV] Triển khai Code:** Đã viết xong logic`.
-2. **Liệt kê chính xác danh sách các file đã sửa/tạo** vào trong `CHANNEL.md` để phòng QA biết đúng mục tiêu cần kiểm tra.
-3. Đổi `Phòng ban đang giữ quyền`: thành `[QA]`.
-4. Ghi `THÔNG ĐIỆP BÀN GIAO GẦN NHẤT`: Tóm tắt logic kỹ thuật đã thêm và lưu ý các ca biên.
-5. Thông báo cho đại ca:
-   > *"Code đã hoàn tất. Kênh `.agent/CHANNEL.md` đã được cập nhật. Đại ca hãy sang phòng **[QA]** và chỉ cần gõ: `tiếp tục`."*
+### 2. Vào Ca & Nhận Việc Mới:
+- Nhận thông điệp dạng `[TASK #T-xx]` từ **`[BA]`** hoặc **`[UI]`**.
+- Cập nhật trạng thái DEV: `🟢 Busy - Code #T-xx`.
+- Đọc spec tại `01-spec.md` và demo tại `02-demo.html`.
+- Viết `03-plan.md` và tiến hành code trong `src/`.
+
+### 3. Hết Ca & Bàn Giao Sang QA:
+Khi code xong:
+1. Ghi chính xác danh sách file đã sửa vào cuối file `03-plan.md`.
+2. Cập nhật bảng `## 📋 2. BẢNG THEO DÕI NHIỆM VỤ CUỐN CHIẾU`:
+   - Dòng `#T-xx`: Đổi `Chặng Hiện Tại`: `DEV ➔ QA`.
+   - Đổi `Phòng Đang Xử Lý`: `[QA]`.
+   - Đổi `Trạng Thái`: `🟡 Testing`.
+3. Trả trạng thái DEV về: `⚪ Idle - Đang rảnh` (sẵn sàng bốc task tiếp theo).
+4. **BẮN TIN SANG QA:**
+   - Tra ID của **`[QA]`**, gọi:
+     ```json
+     send_message(
+       Recipient: "<QA_CONVERSATION_ID>",
+       Message: "[TASK #T-xx] Đã hoàn thành code. Kế hoạch và danh sách file tại docs/tasks/T-xx-[tên-ngắn]/03-plan.md. Mời QA kiểm thử!"
+     )
+     ```
+
+### 4. Xử Lý Nhận Bug Từ QA (`[BUG #T-xx]`):
+- Khi nhận thông điệp `[BUG #T-xx]` từ QA:
+  1. Cập nhật trạng thái DEV: `🟢 Busy - Fix bug #T-xx`.
+  2. Mở file `docs/tasks/T-xx/04-audit.md`, đọc kỹ danh sách lỗi cần fix.
+  3. Tiến hành sửa code trong `src/`.
+  4. Tick `[x]` vào các mục lỗi đã giải quyết trong `04-audit.md`.
+  5. Cập nhật Task Board: `DEV ➔ QA`, Trạng thái: `🟡 Retesting`.
+  6. Bắn tin lại cho QA:
+     ```json
+     send_message(
+       Recipient: "<QA_CONVERSATION_ID>",
+       Message: "[FIXED #T-xx] Đã fix triệt để các lỗi trong 04-audit.md. Mời QA kiểm thử lại!"
+     )
+     ```

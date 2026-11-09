@@ -1,29 +1,29 @@
-# 📡 KÊNH ĐIỀU PHỐI LIÊN PHÒNG BAN (DISPATCH CHANNEL)
+# 📡 TỔNG ĐÀI ĐIỀU PHỐI DÂY CHUYỀN (ROLLING DISPATCH RADAR)
 
-> **Cơ chế:** Mọi phòng ban ([BA], [UI], [DEV], [QA], [GIT]) đều phải tuân thủ việc ĐỌC và TỰ ĐỘNG CẬP NHẬT file này.  
-> Đại ca chỉ cần sang phòng tiếp theo và gõ: **`tiếp tục`** (hoặc `@.agent/CHANNEL.md tiếp tục`)!
-
----
-
-## 🚦 TRẠNG THÁI HIỆN TẠI (ACTIVE DISPATCH)
-- **Tính năng đang xử lý:** _(Chưa có tính năng nào - Chờ [BA] khởi tạo)_
-- **Phân hệ mục tiêu:** `Frontend` | `Backend` | `Khác`
-- **Nhánh Git tác chiến:** `develop` | `main` | `feature/...`
-- **Phòng ban đang giữ quyền (Active Role):** `[BA]`
-- **Cập nhật lần cuối:** YYYY-MM-DD
+> **Cơ chế:** Trung tâm điều phối đa nhiệm cuốn chiếu (Pipelined Dispatch). Mỗi nhiệm vụ mang một mã `Task ID` độc lập và được đóng gói trọn vẹn trong thư mục `docs/tasks/T-xx/`.
 
 ---
 
-## 📋 TIẾN TRÌNH DÂY CHUYỀN (PIPELINE CHECKLIST)
-- [ ] **1. [BA] Đặc tả:** Chờ BA phân tích và xuất spec vào `docs/prd/`
-- [ ] **2. [UI] Demo HTML:** (Tùy chọn) Chờ UI dựng prototype vào `docs/ui/`
-- [ ] **3. [DEV] Triển khai Code:** Chờ Dev viết code và liệt kê danh sách file đã sửa
-- [ ] **4. [QA] Kiểm thử:** Chờ QA chạy type-check & lint trên các file sửa và xác nhận PASS ✅
-- [ ] **5. [GIT] Release:** Chờ Git soát diff, commit đúng format và push an toàn
+## 📞 1. DANH BẠ PHÒNG BAN & TRẠNG THÁI (ROOM REGISTRY)
+| Phòng Ban | Vai Trò | Conversation ID | Trạng Thái | Việc Đang Làm Dở (In-Progress) |
+| :--- | :--- | :--- | :--- | :--- |
+| **[CHANNEL]** | Tháp Chỉ Huy Trung Tâm | `chưa_kết_nối` | 🔴 Offline | Giám sát & Điều phối chung |
+| **[BA]** | Phân Tích Nghiệp Vụ | `chưa_kết_nối` | 🔴 Offline | Đang rảnh |
+| **[UI]** | Thiết Kế & Demo HTML | `chưa_kết_nối` | 🔴 Offline | Đang rảnh |
+| **[DEV]** | Lập Trình Frontend/Backend | `chưa_kết_nối` | 🔴 Offline | Đang rảnh |
+| **[QA]** | Kiểm Thử & Review | `chưa_kết_nối` | 🔴 Offline | Đang rảnh |
+| **[GIT]** | Release & Commit | `chưa_kết_nối` | 🔴 Offline | Đang rảnh |
 
 ---
 
-## 📨 THÔNG ĐIỆP BÀN GIAO GẦN NHẤT (LATEST HANDOFF)
-> **Phòng vừa hoàn thành:** `[Chưa bắt đầu]`  
-> **Chuyển giao cho phòng:** `[BA]`  
-> **Nội dung bàn giao:** Khởi động tính năng mới. Mời đại ca vào phòng [BA] mô tả yêu cầu bài toán!
+## 📋 2. BẢNG THEO DÕI NHIỆM VỤ CUỐN CHIẾU (TASK PIPELINE)
+| Task ID | Tên Nhiệm Vụ | Phân Hệ | Chặng Hiện Tại | Phòng Đang Xử Lý | Trạng Thái | Thư Mục Hồ Sơ |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`#T-00`** | Mẫu nhiệm vụ khởi đầu | System | `INIT` | `[CHANNEL]` | ⚪ Standby | `docs/tasks/T-00-sample/` |
+
+> *Trạng thái quy chuẩn: `🟡 In-Progress` | `🔴 Bug Found` | `🟡 Retesting` | `🟢 PASS` | `✅ DONE`*
+
+---
+
+## 📨 3. NHẬT KÝ ĐIỀU PHỐI THỜI GIAN THỰC (LIVE DISPATCH TICKER)
+- `[System]`: Kênh điều phối sẵn sàng tiếp nhận nhiệm vụ.

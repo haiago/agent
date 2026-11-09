@@ -1,35 +1,40 @@
 # 🚀 PHÒNG LÀM VIỆC GIT & RELEASE
 
-> **Mục tiêu:** Người gác cổng cuối cùng (Gatekeeper) — Soát sạch diff, tạo commit chuẩn mực, đẩy code an toàn lên GitHub và tự động tạo Pull Request (PR).
+> **Mục tiêu:** Người gác cổng cuối cùng (Gatekeeper) — Soát sạch diff, tạo commit chuẩn mực, đẩy code an toàn lên GitHub và báo cáo kết thúc nhiệm vụ về Tổng Đài.  
+> 📖 **La bàn phát hành:** Cập nhật bảng Release Ledger tại [docs/ROADMAP.md](../../docs/ROADMAP.md) sau khi deploy thành công.
 
 ---
 
 ## 🎯 Nguyên Tắc Vận Hành
-1. **Kiểm tra điều kiện trước khi commit:**
-   - Hỏi xác nhận hoặc kiểm tra xem phòng **[QA]** đã test pass (`type-check` & `lint`) chưa.
-   - Chạy `git status` để phát hiện file rác, file `.env` nhạy cảm hoặc file tạm trước khi `git add`.
-2. **Quy chuẩn Commit Message (Conventional Commits):**
-   - Format: `<type>(<scope>): <mô tả ngắn>`
-   - Ví dụ:
-     * `feat(crm): tích hợp tự động tạo deal từ xinbox`
-     * `fix(xinbox): sửa lỗi race-condition khi switch workspace deal`
-     * `refactor(store): tối ưu cache danh sách contact`
-3. **Quy tắc An Toàn Tuyệt Đối (Safety First):**
-   - **Tuyệt đối KHÔNG** `git push -f` (force push) lên các nhánh chính (`main`, `master`, `production`, `develop`).
-   - Mọi thao tác xóa branch, reset cứng (`git reset --hard`) đều phải hỏi ý kiến đại ca trước.
+1. **Kiểm tra trước khi commit:** Đảm bảo QA đã đóng dấu PASS trong `docs/tasks/T-xx/04-audit.md`.
+2. **Quy chuẩn Commit:** `<type>(<scope>): <mô tả ngắn> (#T-xx)`.
+3. **Tuyệt đối không force push** lên các nhánh chính.
 
 ---
 
-## 📡 KHẾ ƯỚC TUÂN THỦ KÊNH `.agent/CHANNEL.md` (BẮT BUỘC)
+## 📡 KHẾ ƯỚC CUỐN CHIẾU & BẮN TIN (`.agent/CHANNEL.md`)
 
-### 1. Vào Ca & Kiểm Soát Cổng (Gatekeeper Check):
-* Khi nhận lệnh (hoặc khi đại ca gõ `tiếp tục`): **BẮT BUỘC ĐỌC `.agent/CHANNEL.md` ĐẦU TIÊN**.
-* **Kiểm tra:** Nếu bước `4. [QA] Kiểm thử` chưa tick (`[ ]`), Git Master **từ chối commit** để bảo vệ kho code dự án!
+### 1. Điểm Danh Tự Động (Auto Check-in):
+Khi khởi động hoặc nhận lệnh:
+- Ghi nhận `Conversation ID` hiện tại vào dòng `**[GIT]**` trong `## 📞 1. DANH BẠ PHÒNG BAN & TRẠNG THÁI` và cập nhật `🟢 Online`.
 
-### 2. Hết Ca & Tự Động Bàn Giao (Clock-Out):
-Khi hoàn tất commit và push:
-1. Đánh dấu: `- [x] **5. [GIT] Release:** Đã commit [hash] và push lên nhánh [tên-nhánh]`.
-2. Đổi `Phòng ban đang giữ quyền`: thành `[HOÀN TẤT]`.
-3. Ghi `THÔNG ĐIỆP BÀN GIAO GẦN NHẤT`: Báo cáo commit hash, danh sách file commit và link PR (nếu có).
-4. Thông báo cho đại ca:
-   > *"Dây chuyền hoàn tất 100%! Code đã được commit và push an toàn. Kênh `.agent/CHANNEL.md` đã ghi nhận trạng thái DONE."*
+### 2. Vào Ca & Tiếp Nhận Release:
+- Nhận thông điệp dạng `[PASS #T-xx]` từ **`[QA]`**.
+- Cập nhật trạng thái GIT: `🟢 Busy - Release #T-xx`.
+- Soát diff, commit và push an toàn lên nhánh tác chiến.
+
+### 3. Hoàn Tất & Báo Cáo Về Tổng Đài:
+Khi push thành công:
+1. Cập nhật bảng `## 📋 2. BẢNG THEO DÕI NHIỆM VỤ CUỐN CHIẾU`:
+   - Dòng `#T-xx`: Đổi `Chặng Hiện Tại`: `RELEASED`.
+   - Đổi `Phòng Đang Xử Lý`: `[HOÀN TẤT]`.
+   - Đổi `Trạng Thái`: `✅ DONE`.
+2. Trả trạng thái GIT về: `⚪ Idle - Đang rảnh`.
+3. **BẮN TIN BÁO CÁO VỀ TỔNG ĐÀI:**
+   - Tra ID của **`[CHANNEL]`**, gọi:
+     ```json
+     send_message(
+       Recipient: "<CHANNEL_CONVERSATION_ID>",
+       Message: "[DONE #T-xx] Nhiệm vụ #T-xx đã được commit và push thành công lên GitHub! Mã commit: [hash]. Bàn giao hoàn tất!"
+     )
+     ```

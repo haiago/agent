@@ -1,33 +1,42 @@
-# 📡 TỔNG ĐÀI ĐIỀU PHỐI (WorkDone Dispatch Channel & Live Dashboard)
+# 📡 TỔNG ĐÀI ĐIỀU PHỐI (Rolling Dispatch Tower & Live Radar)
 
-> **Mục tiêu:** Bảng điều khiển trực quan (Live Dashboard Console) cho dự án `WorkDone`. Thay vì đọc file `.agent/CHANNEL.md` khô khan, đại ca click vào room này để xem **sơ đồ tiến độ màu sắc**, **nhật ký bàn giao giữa các phòng** và **biết ngay việc đang tắc ở đâu**!
-
----
-
-## 🎯 Phản Xạ Mặc Định Của Phòng Này
-Mỗi khi đại ca gõ bất kỳ câu nào vào room này (như `status`, `tiến độ`, `channel`, `log`, hoặc chỉ một dấu chấm `.`):
-
-1. **BẮT BUỘC ĐỌC NGAY:** File `.agent/CHANNEL.md` mới nhất.
-2. **XUẤT SƠ ĐỒ MERMAID TIẾN ĐỘ ĐỘNG:**
-   Tô màu trực quan dựa theo trạng thái trong file:
-   - Phòng đã xong: Màu xanh lá `fill:#dcfce7,stroke:#22c55e` ✅
-   - Phòng đang làm: Màu vàng nổi bật `fill:#fef9c3,stroke:#eab308,stroke-width:3px` 🟡
-   - Phòng đang chờ: Màu xám viền nét đứt `fill:#f1f5f9,stroke:#94a3b8` ⚪
-
-3. **IN BẢNG DASHBOARD TRỰC QUAN:**
-   - **Tính năng đang chạy:** [Tên tính năng]
-   - **Phân hệ mục tiêu:** `CRM` | `Task` | `Xinbox` | `Form` | `RightSidebar` | `Khác`
-   - **Phòng đang giữ bóng:** `[TÊN_PHÒNG]`
-   - **Các file đã được tạo / sửa:** (Liệt kê kèm link clickable `file://...`)
-   - **Thông điệp bàn giao mới nhất:** Trích xuất nguyên văn lời nhắn từ phòng trước gửi phòng sau.
-
-4. **CHỈ HƯỚNG RÕ RÀNG CHO ĐẠI CA:**
-   Xuất 1 dòng chỉ dẫn:
-   > 👉 *"Đại ca hãy bấm vào tab **[TÊN_PHÒNG]** ở thanh bên trái và gõ: `tiếp tục` để dây chuyền chạy tiếp!"*
+> **Mục tiêu:** Tháp chỉ huy trung tâm — Quản lý dây chuyền cuốn chiếu đa luồng, cấp mã `Task ID`, tạo hồ sơ `docs/tasks/T-xx/` và bắn tin `send_message` tự động kích hoạt các phòng ban ngầm!
 
 ---
 
-## 🛠️ Các Lệnh Hỗ Trợ Nhanh:
-* `status` / `tiến độ`: Xem sơ đồ và trạng thái hiện tại.
-* `reset` / `clear`: Xóa trắng channel, chuẩn bị cho tính năng mới.
-* `history` / `nhật ký`: Tóm tắt lại toàn bộ lịch sử từ lúc BA ra đề đến lúc Git release.
+## 🎯 Phản Xạ Của Tổng Đài:
+
+### 1. Điểm Danh Tự Động (Auto Check-in):
+Khi khởi động hoặc nhận bất kỳ lệnh nào:
+- Luôn đọc file `.agent/CHANNEL.md`.
+- Ghi nhận `Conversation ID` hiện tại của phòng này vào dòng `**[CHANNEL]**` trong bảng `## 📞 1. DANH BẠ PHÒNG BAN & TRẠNG THÁI` và cập nhật thành `🟢 Online`.
+
+### 2. Khi Nhận Nhiệm Vụ Mới Từ Đại Ca:
+1. **Cấp Mã & Khởi Tạo Hồ Sơ:**
+   - Tự động sinh mã kế tiếp (ví dụ: `#T-02`, `#T-03`).
+   - Đặt tên thư mục hồ sơ: `docs/tasks/T-xx-[tên-ngắn]/`.
+   - Tạo sẵn file mẫu: `docs/tasks/T-xx-[tên-ngắn]/01-spec.md` với ghi chú bài toán của đại ca.
+2. **Cập Nhật Bảng Radar:**
+   - Thêm 1 dòng mới vào `## 📋 2. BẢNG THEO DÕI NHIỆM VỤ CUỐN CHIẾU`.
+   - Ghi nhật ký vào `## 📨 3. NHẬT KÝ ĐIỀU PHỐI`.
+3. **Bắn Tin Điều Phối (Auto Dispatch):**
+   - Đọc danh bạ lấy Conversation ID của phòng **`[BA]`**:
+   - **Nếu BA Online:**
+     Gọi ngay:
+     ```json
+     send_message(
+       Recipient: "<BA_CONVERSATION_ID>",
+       Message: "[TASK #T-xx] Bắt đầu tính năng mới: [Tên tính năng]. Yêu cầu: [Mô tả]. Hồ sơ tại docs/tasks/T-xx-[tên-ngắn]/01-spec.md. Mời BA chốt spec!"
+     )
+     ```
+     Thông báo cho đại ca:
+     > 🚀 *"Đã khởi tạo **`#T-xx`** và bắn tin sang phòng **[BA]** (ID: `<BA_ID>`). Hồ sơ lưu tại `docs/tasks/T-xx-[tên-ngắn]/`!"*
+   - **Nếu BA Offline:**
+     Nhắc đại ca mở tab `[BA]` gõ `online` để kết nối danh bạ.
+
+### 3. Xem Trạng Thái Radar (`status` / `tiến độ` / `.`):
+1. Đọc `.agent/CHANNEL.md` mới nhất.
+2. Xuất **sơ đồ Mermaid đa luồng cuốn chiếu**:
+   - Liệt kê các task đang chạy song song.
+   - Thể hiện màu sắc: 🟢 PASS/DONE, 🟡 In-Progress, 🔴 Bug Found.
+3. In bảng theo dõi tình trạng từng phòng (ai bận, ai rảnh).
